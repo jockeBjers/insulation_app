@@ -14,4 +14,27 @@ class InsulatedPipe {
     required this.material,
   });
 
+  double getFirstLayerArea() {
+    return InsulationCalculator().calculateFirstLayerArea(size.diameter, material.insulationThickness, length);
+  }
+
+  double getSecondLayerArea() {
+    return InsulationCalculator().calculateSecondLayerArea(size.diameter, material.insulationThickness, length);
+  }
+
+  double getTotalArea() {
+    return getFirstLayerArea() + getSecondLayerArea();
+  }
+
+  double getFirstLayerRolls() {
+    return InsulationCalculator().calculateRolls(getFirstLayerArea(), material.insulationAreaPerMeter);
+  }
+
+  double getSecondLayerRolls() {
+    return InsulationCalculator().calculateRolls(getSecondLayerArea(), material.insulationAreaPerMeter);
+  }
+
+  double getTotalRolls() {
+    return getFirstLayerRolls() + getSecondLayerRolls();
+  }
 }
