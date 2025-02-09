@@ -15,20 +15,17 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         appBarTheme: AppBarTheme(
            backgroundColor: const Color.fromARGB(226, 223, 204, 145),
-           centerTitle: true
+           centerTitle: true,
         ) ,
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color.fromARGB(255, 255, 149, 27),
-           surface: const Color.fromARGB(237, 241, 227, 186)),
+           surface: const Color.fromARGB(236, 233, 224, 197)),
         primaryColor:  const Color.fromARGB(226, 223, 204, 145), 
         textTheme: GoogleFonts.patrickHandTextTheme(),
         useMaterial3: true,
 
       ),
-      
       home: HomePage(),
-
-
 
     );
   }

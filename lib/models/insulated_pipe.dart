@@ -1,6 +1,6 @@
 import 'package:insulation_app/models/insulation_type.dart';
 import 'package:insulation_app/models/pipe_size.dart';
-import 'package:insulation_app/util/insulation_calculator';
+import 'package:insulation_app/util/insulation_calculator.dart';
 
 /// Pipe Model
 class InsulatedPipe {
