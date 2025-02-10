@@ -91,14 +91,12 @@ class _HomePageState extends State<HomePage> {
             margin: EdgeInsets.only(left: 10, right: 10, top: 16),
             child: ListTile(
               title: Text(
-                  style: TextStyle(fontSize: 22), "Pipe: ${pipe.size.label}"),
+                  style: TextStyle(fontSize: 22), "Rör: ${pipe.size.label}"),
               subtitle: Text(
                 style: TextStyle(fontSize: 18),
-                "Length: ${pipe.length}m • Material: ${pipe.firstLayerMaterial.name}\n"
-                "First Layer: ${pipe.getFirstLayerArea().ceil()} m², Rolls: ${pipe.getFirstLayerRolls().ceil()}\n"
-                "${pipe.secondLayerMaterial != null ? "Second Layer (${pipe.secondLayerMaterial!.name}): ${pipe.getSecondLayerArea().ceil()} m², Rolls: ${pipe.getSecondLayerRolls().ceil()}\n" : ""}"
-                "Total Insulation: ${pipe.getTotalArea().ceil()} m²\n"
-                "Total Rolls Needed: ${pipe.getTotalRolls().ceil()}",
+                "Längd: ${pipe.length}m\n"
+                "Första lager: (${pipe.firstLayerMaterial!.name}): ${pipe.getFirstLayerArea().ceil()} m², Bunt: ${pipe.getFirstLayerRolls().ceil()}\n"
+                "${pipe.secondLayerMaterial != null ? "Andra lager (${pipe.secondLayerMaterial!.name}): ${pipe.getSecondLayerArea().ceil()} m², Bunt: ${pipe.getSecondLayerRolls().ceil()}" : ""}",
               ),
               trailing: IconButton(
                 icon: Icon(Icons.delete, color: Colors.red),
