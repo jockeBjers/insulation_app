@@ -1,8 +1,5 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:insulation_app/models/insulation_type.dart';
-import 'package:insulation_app/models/pipe_size.dart';
+
 import 'package:insulation_app/models/insulated_pipe.dart';
 import 'package:insulation_app/util/add_pipe_dialog_box.dart';
 
@@ -14,19 +11,22 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<InsulatedPipe> pipes = [];
 
+  List<InsulatedPipe> pipes = [];
+  
   void showAddPipeDialog() {
     showDialog(
       context: context,
       builder: (context) {
         return AddPipeDialog(
-          onAddPipe: (selectedSize, selectedMaterial, length) {
+          onAddPipe: (selectedSize, firstLayer, secondLayer, length) {
             setState(() {
               pipes.add(InsulatedPipe(
-                  size: selectedSize,
-                  length: length,
-                  material: selectedMaterial));
+                size: selectedSize,
+                length: length,
+                firstLayerMaterial: firstLayer,
+                secondLayerMaterial: secondLayer, 
+              ));
             });
           },
         );
@@ -40,16 +40,8 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void CalcTotalMaterialNeeded(){
-    for (var element in pipes) {
-
-      if(element.material.insulationThickness == 30){
-
-      }
-
-    }
-  }
-
+  // Summary
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,7 +60,9 @@ class _HomePageState extends State<HomePage> {
               ),
 
               // Summary view
-              Container(
+              Column(
+
+              
               ),
             ],
           ),
@@ -97,14 +91,12 @@ class _HomePageState extends State<HomePage> {
             margin: EdgeInsets.only(left: 10, right: 10, top: 16),
             child: ListTile(
               title: Text(
-                  style: TextStyle(fontSize: 22), "Pipe: ${pipe.size.label}"),
+                  style: TextStyle(fontSize: 22), "Rör: ${pipe.size.label}"),
               subtitle: Text(
                 style: TextStyle(fontSize: 18),
-                "Length: ${pipe.length}m • Material: ${pipe.material.name}\n"
-                "First Layer: ${pipe.getFirstLayerArea().ceil()} m², Rolls: ${pipe.getFirstLayerRolls().ceil()}\n"
-                "Second Layer: ${pipe.getSecondLayerArea().ceil()} m², Rolls: ${pipe.getSecondLayerRolls().ceil()}\n"
-                "Total Insulation: ${pipe.getTotalArea().ceil()} m²\n"
-                "Total Rolls Needed: ${pipe.getTotalRolls().ceil()}",
+                "Längd: ${pipe.length}m\n"
+                "Första lager: (${pipe.firstLayerMaterial!.name}): ${pipe.getFirstLayerArea().ceil()} m², Bunt: ${pipe.getFirstLayerRolls().ceil()}\n"
+                "${pipe.secondLayerMaterial != null ? "Andra lager (${pipe.secondLayerMaterial!.name}): ${pipe.getSecondLayerArea().ceil()} m², Bunt: ${pipe.getSecondLayerRolls().ceil()}" : ""}",
               ),
               trailing: IconButton(
                 icon: Icon(Icons.delete, color: Colors.red),

@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:insulation_app/models/insulation_type.dart';
 import 'package:insulation_app/models/pipe_size.dart';
-
 class AddPipeDialog extends StatelessWidget {
-  final Function(PipeSize, InsulationType, double) onAddPipe;
+  final Function(PipeSize, InsulationType, InsulationType?, double) onAddPipe;
 
   const AddPipeDialog({super.key, required this.onAddPipe});
 
+
   @override
   Widget build(BuildContext context) {
-    PipeSize? selectedSize;
-    InsulationType? selectedMaterial;
-    final TextEditingController lengthController = TextEditingController();
+
+  PipeSize? selectedSize;
+  InsulationType? selectedFirstLayer;
+  InsulationType? selectedSecondLayer;
+  final TextEditingController lengthController = TextEditingController();
 
     return AlertDialog(
-      title: Text("Add new pipe"),
+      title: Text("Lägg till"),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -30,7 +32,7 @@ class AddPipeDialog extends StatelessWidget {
             onChanged: (value) {
               selectedSize = value;
             },
-            decoration: InputDecoration(labelText: "Select Pipe Size"),
+            decoration: InputDecoration(labelText: "Välj dimensioner"),
           ),
 
           SizedBox(height: 10),
@@ -39,14 +41,15 @@ class AddPipeDialog extends StatelessWidget {
           TextField(
             controller: lengthController,
             keyboardType: TextInputType.number,
-            decoration: InputDecoration(labelText: "Pipe length (m)"),
+            decoration: InputDecoration(labelText: "Rör längd (m)"),
           ),
 
           SizedBox(height: 10),
 
           // Material dropdown
+
           DropdownButtonFormField<InsulationType>(
-            value: selectedMaterial,
+            value: selectedFirstLayer,
             items: materials.map((mat) {
               return DropdownMenuItem<InsulationType>(
                 value: mat,
@@ -54,28 +57,50 @@ class AddPipeDialog extends StatelessWidget {
               );
             }).toList(),
             onChanged: (value) {
-              selectedMaterial = value;
+              selectedFirstLayer = value;
             },
-            decoration: InputDecoration(labelText: "select Material"),
+            decoration: InputDecoration(labelText: "Första lager"),
+          ),
+
+          DropdownButtonFormField<InsulationType?>(
+            value: selectedSecondLayer,
+            items: [
+              DropdownMenuItem<InsulationType?>(
+                value: null,
+                child: Text("Inget andra lager"),
+              ),
+              ...materials.map((mat) {
+                return DropdownMenuItem<InsulationType?>(
+                  value: mat,
+                  child: Text(mat.name),
+                );
+              }),
+            ],
+            onChanged: (value) {
+              selectedSecondLayer = value;
+            },
+            decoration:
+                InputDecoration(labelText: "Andra lager (valfritt)"),
           ),
         ],
       ),
       actions: [
         TextButton(
-            onPressed: () => Navigator.pop(context), child: Text("Cancel")),
+            onPressed: () => Navigator.pop(context), child: Text("Avbryt")),
         ElevatedButton(
           onPressed: () {
             if (selectedSize != null &&
-                selectedMaterial != null &&
+                selectedFirstLayer != null &&
                 lengthController.text.isNotEmpty) {
               double length = double.parse(lengthController.text);
-              onAddPipe(selectedSize!, selectedMaterial!, length);
+              onAddPipe(selectedSize!, selectedFirstLayer!,
+                  selectedSecondLayer, length);
               Navigator.pop(context);
             }
           },
-          child: Text("Add"),
+          child: Text("Lägg till"),
         ),
-      ], 
+      ],
     );
   }
 }

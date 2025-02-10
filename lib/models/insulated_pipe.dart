@@ -6,20 +6,29 @@ import 'package:insulation_app/util/insulation_calculator.dart';
 class InsulatedPipe {
   final PipeSize size;
   final double length;
-  final InsulationType material;
+  final InsulationType firstLayerMaterial;
+  final InsulationType? secondLayerMaterial;
+
+  late final double insulationArea;
 
   InsulatedPipe({
-    required this.size,
-    required this.length,
-    required this.material,
-  });
+      required this.size,
+      required this.length,
+      required this.firstLayerMaterial,
+      this.secondLayerMaterial});
 
   double getFirstLayerArea() {
-    return InsulationCalculator().calculateFirstLayerArea(size.diameter, material.insulationThickness, length);
+    return InsulationCalculator().calculateFirstLayerArea(
+        size.diameter, firstLayerMaterial.insulationThickness, length);
   }
 
   double getSecondLayerArea() {
-    return InsulationCalculator().calculateSecondLayerArea(size.diameter, material.insulationThickness, length);
+    if (secondLayerMaterial == null) return 0; 
+    return InsulationCalculator().calculateSecondLayerArea(
+      size.diameter,
+      secondLayerMaterial!.insulationThickness,
+      length,
+    );
   }
 
   double getTotalArea() {
@@ -27,11 +36,16 @@ class InsulatedPipe {
   }
 
   double getFirstLayerRolls() {
-    return InsulationCalculator().calculateRolls(getFirstLayerArea(), material.insulationAreaPerMeter);
+    return InsulationCalculator().calculateRolls(
+        getFirstLayerArea(), firstLayerMaterial.insulationAreaPerMeter);
   }
 
   double getSecondLayerRolls() {
-    return InsulationCalculator().calculateRolls(getSecondLayerArea(), material.insulationAreaPerMeter);
+    if (secondLayerMaterial == null) return 0;
+    return InsulationCalculator().calculateRolls(
+      getSecondLayerArea(),
+      secondLayerMaterial!.insulationAreaPerMeter,
+    );
   }
 
   double getTotalRolls() {
