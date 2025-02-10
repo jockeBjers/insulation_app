@@ -1,8 +1,5 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:insulation_app/models/insulation_type.dart';
-import 'package:insulation_app/models/pipe_size.dart';
+
 import 'package:insulation_app/models/insulated_pipe.dart';
 import 'package:insulation_app/util/add_pipe_dialog_box.dart';
 
@@ -14,19 +11,22 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<InsulatedPipe> pipes = [];
 
+  List<InsulatedPipe> pipes = [];
+  
   void showAddPipeDialog() {
     showDialog(
       context: context,
       builder: (context) {
         return AddPipeDialog(
-          onAddPipe: (selectedSize, selectedMaterial, length) {
+          onAddPipe: (selectedSize, firstLayer, secondLayer, length) {
             setState(() {
               pipes.add(InsulatedPipe(
-                  size: selectedSize,
-                  length: length,
-                  material: selectedMaterial));
+                size: selectedSize,
+                length: length,
+                firstLayerMaterial: firstLayer,
+                secondLayerMaterial: secondLayer, 
+              ));
             });
           },
         );
@@ -40,16 +40,8 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void CalcTotalMaterialNeeded(){
-    for (var element in pipes) {
-
-      if(element.material.insulationThickness == 30){
-
-      }
-
-    }
-  }
-
+  // Summary
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,7 +60,9 @@ class _HomePageState extends State<HomePage> {
               ),
 
               // Summary view
-              Container(
+              Column(
+
+              
               ),
             ],
           ),
@@ -100,9 +94,9 @@ class _HomePageState extends State<HomePage> {
                   style: TextStyle(fontSize: 22), "Pipe: ${pipe.size.label}"),
               subtitle: Text(
                 style: TextStyle(fontSize: 18),
-                "Length: ${pipe.length}m • Material: ${pipe.material.name}\n"
+                "Length: ${pipe.length}m • Material: ${pipe.firstLayerMaterial.name}\n"
                 "First Layer: ${pipe.getFirstLayerArea().ceil()} m², Rolls: ${pipe.getFirstLayerRolls().ceil()}\n"
-                "Second Layer: ${pipe.getSecondLayerArea().ceil()} m², Rolls: ${pipe.getSecondLayerRolls().ceil()}\n"
+                "${pipe.secondLayerMaterial != null ? "Second Layer (${pipe.secondLayerMaterial!.name}): ${pipe.getSecondLayerArea().ceil()} m², Rolls: ${pipe.getSecondLayerRolls().ceil()}\n" : ""}"
                 "Total Insulation: ${pipe.getTotalArea().ceil()} m²\n"
                 "Total Rolls Needed: ${pipe.getTotalRolls().ceil()}",
               ),

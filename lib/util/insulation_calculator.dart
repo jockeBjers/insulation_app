@@ -1,11 +1,11 @@
 class InsulationCalculator {
   double calculateLayerArea(double diameter, double thickness, double layerMultiplier) {
-    return (diameter + (thickness * layerMultiplier)) * 3.1415; // Approx. Pi
+    return (diameter + (thickness * layerMultiplier)) * 3.1415; 
   }
 
   double calculateArea(double diameter, double thickness, double pipeLength, double layerMultiplier) {
     double layer = calculateLayerArea(diameter, thickness, layerMultiplier);
-    return pipeLength * layer ; // Area in square meters
+    return pipeLength * layer ; 
   }
 
   double calculateFirstLayerArea(double diameter, double thickness, double pipeLength) {
