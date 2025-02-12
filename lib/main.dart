@@ -12,13 +12,15 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+
+      
       theme: ThemeData(
         appBarTheme: AppBarTheme(
            backgroundColor: const Color.fromARGB(226, 223, 204, 145),
            centerTitle: true,
         ) ,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color.fromARGB(255, 255, 149, 27),
+          seedColor: const Color.fromARGB(255, 250, 204, 151),
            surface: const Color.fromARGB(236, 233, 224, 197)),
         primaryColor:  const Color.fromARGB(226, 223, 204, 145), 
         textTheme: GoogleFonts.patrickHandTextTheme(),

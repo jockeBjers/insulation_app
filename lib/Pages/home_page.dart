@@ -11,9 +11,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   List<InsulatedPipe> pipes = [];
-  
+
   void showAddPipeDialog() {
     showDialog(
       context: context,
@@ -25,9 +24,10 @@ class _HomePageState extends State<HomePage> {
                 size: selectedSize,
                 length: length,
                 firstLayerMaterial: firstLayer,
-                secondLayerMaterial: secondLayer, 
+                secondLayerMaterial: secondLayer,
               ));
             });
+            calculateTotalMaterial();
           },
         );
       },
@@ -38,10 +38,52 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       pipes.removeAt(index);
     });
+    calculateTotalMaterial();
   }
 
-  // Summary
- 
+
+//summary
+  double total30 = 0;
+  double total50 = 0;
+  double total80 = 0;
+
+  void calculateTotalMaterial() {
+    double newTotal30 = 0;
+    double newTotal50 = 0;
+    double newTotal80 = 0;
+
+    for (var pipe in pipes) {
+      switch (pipe.firstLayerMaterial.insulationThickness) {
+        case 0.03:
+          newTotal30 += pipe.getFirstLayerArea();
+          break;
+        case 0.05:
+          newTotal50 += pipe.getFirstLayerArea();
+          break;
+        case 0.08:
+          newTotal80 += pipe.getFirstLayerArea();
+          break;
+      }
+      switch (pipe.secondLayerMaterial?.insulationThickness) {
+        case 0.03:
+          newTotal30 += pipe.getSecondLayerArea();
+          break;
+        case 0.05:
+          newTotal50 += pipe.getSecondLayerArea();
+          break;
+        case 0.08:
+          newTotal80 += pipe.getSecondLayerArea();
+          break;
+      }
+    }
+
+    setState(() {
+      total30 = newTotal30;
+      total50 = newTotal50;
+      total80 = newTotal80;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,10 +102,41 @@ class _HomePageState extends State<HomePage> {
               ),
 
               // Summary view
-              Column(
-
-              
-              ),
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                  boxShadow: [
+                    BoxShadow(
+                      color:
+                          const Color.fromARGB(155, 158, 158, 158).withValues(),
+                      spreadRadius: 2,
+                      blurRadius: 5,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Total 30mm: ${total30.ceil()} m²",
+                      style: TextStyle(fontSize: 20),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      "Total 50mm: ${total50.ceil()} m²",
+                      style: TextStyle(fontSize: 20),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      "Total 80mm: ${total80.ceil()} m²",
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  ],
+                ),
+              ), // end container
             ],
           ),
         ),
@@ -93,11 +166,11 @@ class _HomePageState extends State<HomePage> {
               title: Text(
                   style: TextStyle(fontSize: 22), "Rör: ${pipe.size.label}"),
               subtitle: Text(
-                style: TextStyle(fontSize: 18),
-                "Längd: ${pipe.length}m\n"
-                "Första lager: (${pipe.firstLayerMaterial!.name}): ${pipe.getFirstLayerArea().ceil()} m², Bunt: ${pipe.getFirstLayerRolls().ceil()}\n"
-                "${pipe.secondLayerMaterial != null ? "Andra lager (${pipe.secondLayerMaterial!.name}): ${pipe.getSecondLayerArea().ceil()} m², Bunt: ${pipe.getSecondLayerRolls().ceil()}" : ""}",
-              ),
+                  style: TextStyle(fontSize: 18),
+                  "Längd: ${pipe.length}m\n"
+                  "Första lager: (${pipe.firstLayerMaterial.name}): ${pipe.getFirstLayerArea().ceil()} m², Bunt: ${pipe.getFirstLayerRolls().ceil()}"
+                  "${pipe.secondLayerMaterial != null ? "\nAndra lager (${pipe.secondLayerMaterial!.name}): ${pipe.getSecondLayerArea().ceil()} m², Bunt: ${pipe.getSecondLayerRolls().ceil()}" : ""}"
+                  /* "${pipe.firstLayerMaterial == pipe.secondLayerMaterial ? "\nTotal: ${pipe.getTotalArea().ceil()} m², Bunt: ${pipe.getTotalRolls().ceil()}" : ""}" */),
               trailing: IconButton(
                 icon: Icon(Icons.delete, color: Colors.red),
                 onPressed: () {
