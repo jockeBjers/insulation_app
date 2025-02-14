@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:insulation_app/models/insulated_pipe.dart';
 import 'package:insulation_app/models/project.dart';
 import 'package:insulation_app/util/add_pipe_dialog_box.dart';
+import 'package:insulation_app/util/add_project_dialog_box.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -12,33 +13,18 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<Project> projects = [
-    Project(
-      projectNumber: "13524",
-      name: "Siemens",
-      date: DateTime(2025, 2, 13),
-      pipes: [],
-    ),
-    Project(
-      projectNumber: "12343",
-      name: "Häktet",
-      date: DateTime(2025, 2, 13),
-      pipes: [],
-    ),
-    Project(
-      projectNumber: "34562",
-      name: "Hagaskolan",
-      date: DateTime(2025, 1, 23),
-      pipes: [],
-    ),
-  ];
+  List<Project> projects = [];
+  Project? selectedProject;
 
-  late Project selectedProject;
-
-  _HomePageState() {
-    selectedProject = projects[0];
+  @override
+  void initState() {
+    super.initState();
+    if (projects.isNotEmpty) {
+      selectedProject = projects[0];
+    }
   }
-  List<InsulatedPipe> get pipes => selectedProject.pipes;
+
+  List<InsulatedPipe> get pipes => selectedProject?.pipes ?? [];
 
   void showAddPipeDialog() {
     showDialog(
@@ -117,6 +103,27 @@ class _HomePageState extends State<HomePage> {
     calculateTotalMaterial();
   }
 
+  void showAddProjectDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AddProjectDialog(
+          onAddProject: (projectNumber, name, date) {
+            setState(() {
+              projects.add(Project(
+                projectNumber: projectNumber,
+                name: name,
+                date: date,
+                pipes: [],
+              ));
+              selectProject(projects.last);
+            });
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -124,37 +131,46 @@ class _HomePageState extends State<HomePage> {
         toolbarHeight: 80,
         title: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                selectedProject.name,
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              Text(
-                "Projektnummer: ${selectedProject.projectNumber}",
-                style: TextStyle(fontSize: 16),
-              ),
-              Text(
-                "Datum: ${selectedProject.date.toLocal().toString().split(" ")[0]}", // Only show date
-                style: TextStyle(fontSize: 16),
-              ),
-            ],
-          ),
+          child: selectedProject != null
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      selectedProject!.name,
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      "Projektnummer: ${selectedProject!.projectNumber}",
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    Text(
+                      "Datum: ${selectedProject!.date.toLocal().toString().split(" ")[0]}", // Only show date
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ],
+                )
+              : Text(
+                  "Inga projekt valda",
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
         ),
       ),
       // Drawer
       drawer: Drawer(
         child: ListView(
+          padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
               decoration: BoxDecoration(
                 color: Theme.of(context).primaryColor,
               ),
-              child: Text(
-                'Projekt',
-                style: TextStyle(
-                  fontSize: 24,
+              child: Center(
+                child: Text(
+                  'Projekt',
+                  style: TextStyle(
+                    fontSize: 24,
+                  ),
                 ),
               ),
             ),
@@ -168,6 +184,15 @@ class _HomePageState extends State<HomePage> {
                   },
                 ),
               ),
+            ListTile(
+              leading: Icon(Icons.add),
+              title: Text("Lägg till projekt"),
+              onTap: () async {
+                Navigator.pop(context);
+                await Future.delayed(Duration(milliseconds: 300));
+                showAddProjectDialog();
+              },
+            ),
           ],
         ),
       ),
