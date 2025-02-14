@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 
-class AddProjectDialog extends StatelessWidget {
+class AddProjectDialog extends StatefulWidget {
   final Function(String, String, DateTime) onAddProject;
   const AddProjectDialog({super.key, required this.onAddProject});
 
   @override
-  Widget build(BuildContext context) {
-    final TextEditingController projectNumberController =
-        TextEditingController();
-    final TextEditingController nameController = TextEditingController();
-    DateTime selectedDate = DateTime.now();
+  State<AddProjectDialog> createState() => _AddProjectDialogState();
+}
 
+class _AddProjectDialogState extends State<AddProjectDialog> {
+  final TextEditingController projectNumberController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  DateTime selectedDate = DateTime.now();
+  @override
+  Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text("Lägg till projekt"),
       content: Column(
@@ -40,7 +43,9 @@ class AddProjectDialog extends StatelessWidget {
                     lastDate: DateTime(2026),
                   );
                   if (picked != null && picked != selectedDate) {
-                    selectedDate = picked;
+                    setState(() {
+                      selectedDate = picked;
+                    });
                   }
                 },
               ),
@@ -59,7 +64,7 @@ class AddProjectDialog extends StatelessWidget {
           onPressed: () {
             if (projectNumberController.text.isNotEmpty &&
                 nameController.text.isNotEmpty) {
-              onAddProject(
+              widget.onAddProject(
                 projectNumberController.text,
                 nameController.text,
                 selectedDate,

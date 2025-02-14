@@ -14,7 +14,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       locale: Locale('sv'),
-      localizationsDelegates: [GlobalMaterialLocalizations.delegate],
+      localizationsDelegates: [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       supportedLocales: [const Locale('en'), const Locale('sv')],
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
