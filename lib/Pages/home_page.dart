@@ -67,24 +67,24 @@ class _HomePageState extends State<HomePage> {
     for (var pipe in pipes) {
       switch (pipe.firstLayerMaterial.insulationThickness) {
         case 0.03:
-          newTotal30 += pipe.getFirstLayerArea();
+          newTotal30 += pipe.getFirstLayerArea().ceil();
           break;
         case 0.05:
-          newTotal50 += pipe.getFirstLayerArea();
+          newTotal50 += pipe.getFirstLayerArea().ceil();
           break;
         case 0.08:
-          newTotal80 += pipe.getFirstLayerArea();
+          newTotal80 += pipe.getFirstLayerArea().ceil();
           break;
       }
       switch (pipe.secondLayerMaterial?.insulationThickness) {
         case 0.03:
-          newTotal30 += pipe.getSecondLayerArea();
+          newTotal30 += pipe.getSecondLayerArea().ceil();
           break;
         case 0.05:
-          newTotal50 += pipe.getSecondLayerArea();
+          newTotal50 += pipe.getSecondLayerArea().ceil();
           break;
         case 0.08:
-          newTotal80 += pipe.getSecondLayerArea();
+          newTotal80 += pipe.getSecondLayerArea().ceil();
           break;
       }
     }
@@ -124,6 +124,17 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void removeProject(int index) {
+    setState(() {
+      projects.removeAt(index);
+    });
+    if (projects.isNotEmpty) {
+      selectProject(projects[0]);
+    } else {
+      selectedProject = null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -133,7 +144,7 @@ class _HomePageState extends State<HomePage> {
           padding: const EdgeInsets.all(8.0),
           child: selectedProject != null
               ? Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
                       selectedProject!.name,
@@ -151,49 +162,63 @@ class _HomePageState extends State<HomePage> {
                   ],
                 )
               : Text(
-                  "Inga projekt valda",
+                  "Isoleringsberäknaren",
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
         ),
       ),
       // Drawer
       drawer: Drawer(
-        child: ListView(
+        child: ListView.builder(
           padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor,
-              ),
-              child: Center(
-                child: Text(
-                  'Projekt',
-                  style: TextStyle(
-                    fontSize: 24,
+          itemCount: projects.length + 2,
+          itemBuilder: (context, index) {
+            if (index == 0) {
+              return DrawerHeader(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).primaryColor,
+                ),
+                child: Center(
+                  child: Text(
+                    'Projekt',
+                    style: TextStyle(
+                      fontSize: 24,
+                    ),
                   ),
                 ),
-              ),
-            ),
-            for (var project in projects)
-              Card(
+              );
+            } else if (index == projects.length + 1) {
+              return ListTile(
+                leading: Icon(Icons.add),
+                title: Text("Lägg till projekt"),
+                onTap: () async {
+                  Navigator.pop(context);
+                  await Future.delayed(Duration(milliseconds: 300));
+                  showAddProjectDialog();
+                },
+              );
+            } else {
+              final projectIndex = index - 1;
+              return Card(
                 child: ListTile(
-                  title: Text(" ${project.projectNumber} - ${project.name}"),
+                  title: Text(
+                      " ${projects[projectIndex].projectNumber} - ${projects[projectIndex].name}"),
                   onTap: () {
-                    selectProject(project);
+                    selectProject(projects[projectIndex]);
                     Navigator.pop(context);
                   },
+                  trailing: IconButton(
+                    icon: Icon(
+                      Icons.delete,
+                    ),
+                    onPressed: () {
+                      removeProject(projectIndex);
+                    },
+                  ),
                 ),
-              ),
-            ListTile(
-              leading: Icon(Icons.add),
-              title: Text("Lägg till projekt"),
-              onTap: () async {
-                Navigator.pop(context);
-                await Future.delayed(Duration(milliseconds: 300));
-                showAddProjectDialog();
-              },
-            ),
-          ],
+              );
+            }
+          },
         ),
       ),
 
@@ -282,7 +307,9 @@ class _HomePageState extends State<HomePage> {
                   "Första lager: (${pipe.firstLayerMaterial.name}): ${pipe.getFirstLayerArea().ceil()} m², Bunt: ${pipe.getFirstLayerRolls().ceil()}"
                   "${pipe.secondLayerMaterial != null ? "\nAndra lager (${pipe.secondLayerMaterial!.name}): ${pipe.getSecondLayerArea().ceil()} m², Bunt: ${pipe.getSecondLayerRolls().ceil()}" : ""}" /* "${pipe.firstLayerMaterial == pipe.secondLayerMaterial ? "\nTotal: ${pipe.getTotalArea().ceil()} m², Bunt: ${pipe.getTotalRolls().ceil()}" : ""}" */),
               trailing: IconButton(
-                icon: Icon(Icons.delete, color: Colors.red),
+                icon: Icon(
+                  Icons.delete,
+                ),
                 onPressed: () {
                   removePipe(index);
                 },
