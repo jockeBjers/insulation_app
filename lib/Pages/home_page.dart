@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:insulation_app/models/insulated_pipe.dart';
+import 'package:insulation_app/models/project.dart';
 import 'package:insulation_app/util/add_pipe_dialog_box.dart';
 
 class HomePage extends StatefulWidget {
@@ -11,7 +12,33 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<InsulatedPipe> pipes = [];
+  List<Project> projects = [
+    Project(
+      projectNumber: "13524",
+      name: "Siemens",
+      date: DateTime(2025, 2, 13),
+      pipes: [],
+    ),
+    Project(
+      projectNumber: "12343",
+      name: "Häktet",
+      date: DateTime(2025, 2, 13),
+      pipes: [],
+    ),
+    Project(
+      projectNumber: "34562",
+      name: "Hagaskolan",
+      date: DateTime(2025, 1, 23),
+      pipes: [],
+    ),
+  ];
+
+  late Project selectedProject;
+
+  _HomePageState() {
+    selectedProject = projects[0];
+  }
+  List<InsulatedPipe> get pipes => selectedProject.pipes;
 
   void showAddPipeDialog() {
     showDialog(
@@ -40,7 +67,6 @@ class _HomePageState extends State<HomePage> {
     });
     calculateTotalMaterial();
   }
-
 
 //summary
   double total30 = 0;
@@ -84,20 +110,80 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void selectProject(Project project) {
+    setState(() {
+      selectedProject = project;
+    });
+    calculateTotalMaterial();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: Text(style: TextStyle(fontSize: 25), "Insulation Calculator")),
+        toolbarHeight: 80,
+        title: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                selectedProject.name,
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              Text(
+                "Projektnummer: ${selectedProject.projectNumber}",
+                style: TextStyle(fontSize: 16),
+              ),
+              Text(
+                "Datum: ${selectedProject.date.toLocal().toString().split(" ")[0]}", // Only show date
+                style: TextStyle(fontSize: 16),
+              ),
+            ],
+          ),
+        ),
+      ),
+      // Drawer
+      drawer: Drawer(
+        child: ListView(
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor,
+              ),
+              child: Text(
+                'Projekt',
+                style: TextStyle(
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            for (var project in projects)
+              Card(
+                child: ListTile(
+                  title: Text(" ${project.projectNumber} - ${project.name}"),
+                  onTap: () {
+                    selectProject(project);
+                    Navigator.pop(context);
+                  },
+                ),
+              ),
+          ],
+        ),
+      ),
+
+      // Body
       body: Center(
         child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: 600),
+          constraints: BoxConstraints(
+            maxWidth: 600,
+          ),
           child: Column(
             children: [
               // List of pipes
               Expanded(
                 child: pipes.isEmpty
-                    ? Center(child: Text("No pipes in the list"))
+                    ? Center(child: Text("Inga rör tillagda"))
                     : pipeListView(),
               ),
 
@@ -169,8 +255,7 @@ class _HomePageState extends State<HomePage> {
                   style: TextStyle(fontSize: 18),
                   "Längd: ${pipe.length}m\n"
                   "Första lager: (${pipe.firstLayerMaterial.name}): ${pipe.getFirstLayerArea().ceil()} m², Bunt: ${pipe.getFirstLayerRolls().ceil()}"
-                  "${pipe.secondLayerMaterial != null ? "\nAndra lager (${pipe.secondLayerMaterial!.name}): ${pipe.getSecondLayerArea().ceil()} m², Bunt: ${pipe.getSecondLayerRolls().ceil()}" : ""}"
-                  /* "${pipe.firstLayerMaterial == pipe.secondLayerMaterial ? "\nTotal: ${pipe.getTotalArea().ceil()} m², Bunt: ${pipe.getTotalRolls().ceil()}" : ""}" */),
+                  "${pipe.secondLayerMaterial != null ? "\nAndra lager (${pipe.secondLayerMaterial!.name}): ${pipe.getSecondLayerArea().ceil()} m², Bunt: ${pipe.getSecondLayerRolls().ceil()}" : ""}" /* "${pipe.firstLayerMaterial == pipe.secondLayerMaterial ? "\nTotal: ${pipe.getTotalArea().ceil()} m², Bunt: ${pipe.getTotalRolls().ceil()}" : ""}" */),
               trailing: IconButton(
                 icon: Icon(Icons.delete, color: Colors.red),
                 onPressed: () {
