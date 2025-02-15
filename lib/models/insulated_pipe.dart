@@ -9,7 +9,6 @@ class InsulatedPipe {
   final InsulationType firstLayerMaterial;
   final InsulationType? secondLayerMaterial;
 
-  late final double insulationArea;
 
   InsulatedPipe({
       required this.size,
