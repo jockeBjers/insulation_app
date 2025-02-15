@@ -4,6 +4,9 @@ import 'package:insulation_app/models/insulated_pipe.dart';
 import 'package:insulation_app/models/project.dart';
 import 'package:insulation_app/util/add_pipe_dialog_box.dart';
 import 'package:insulation_app/util/add_project_dialog_box.dart';
+import 'package:insulation_app/util/widgets/custom_drawer.dart';
+import 'package:insulation_app/util/widgets/pipe_list_view.dart';
+import 'package:insulation_app/util/widgets/summary_view.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -167,59 +170,13 @@ class _HomePageState extends State<HomePage> {
                 ),
         ),
       ),
+
       // Drawer
-      drawer: Drawer(
-        child: ListView.builder(
-          padding: EdgeInsets.zero,
-          itemCount: projects.length + 2,
-          itemBuilder: (context, index) {
-            if (index == 0) {
-              return DrawerHeader(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor,
-                ),
-                child: Center(
-                  child: Text(
-                    'Projekt',
-                    style: TextStyle(
-                      fontSize: 24,
-                    ),
-                  ),
-                ),
-              );
-            } else if (index == projects.length + 1) {
-              return ListTile(
-                leading: Icon(Icons.add),
-                title: Text("Lägg till projekt"),
-                onTap: () async {
-                  Navigator.pop(context);
-                  await Future.delayed(Duration(milliseconds: 300));
-                  showAddProjectDialog();
-                },
-              );
-            } else {
-              final projectIndex = index - 1;
-              return Card(
-                child: ListTile(
-                  title: Text(
-                      " ${projects[projectIndex].projectNumber} - ${projects[projectIndex].name}"),
-                  onTap: () {
-                    selectProject(projects[projectIndex]);
-                    Navigator.pop(context);
-                  },
-                  trailing: IconButton(
-                    icon: Icon(
-                      Icons.delete,
-                    ),
-                    onPressed: () {
-                      removeProject(projectIndex);
-                    },
-                  ),
-                ),
-              );
-            }
-          },
-        ),
+      drawer: CustomDrawer(
+        projects: projects,
+        selectProject: selectProject,
+        removeProject: removeProject,
+        showAddProjectDialog: showAddProjectDialog,
       ),
 
       // Body
@@ -232,47 +189,15 @@ class _HomePageState extends State<HomePage> {
             children: [
               // List of pipes
               Expanded(
-                child: pipes.isEmpty
-                    ? Center(child: Text("Inga rör tillagda"))
-                    : pipeListView(),
-              ),
+                  child: pipes.isEmpty
+                      ? Center(child: Text("Inga rör tillagda"))
+                      : PipeListView(pipes: pipes, removePipe: removePipe)),
 
               // Summary view
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).primaryColor,
-                  boxShadow: [
-                    BoxShadow(
-                      color:
-                          const Color.fromARGB(155, 158, 158, 158).withValues(),
-                      spreadRadius: 2,
-                      blurRadius: 5,
-                      offset: Offset(0, 3),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Total 30mm: ${total30.ceil()} m²",
-                      style: TextStyle(fontSize: 20),
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      "Total 50mm: ${total50.ceil()} m²",
-                      style: TextStyle(fontSize: 20),
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      "Total 80mm: ${total80.ceil()} m²",
-                      style: TextStyle(fontSize: 20),
-                    ),
-                  ],
-                ),
-              ), // end container
+              SummaryView(
+                  total30: total30,
+                  total50: total50,
+                  total80: total80), // end container
             ],
           ),
         ),
@@ -281,43 +206,6 @@ class _HomePageState extends State<HomePage> {
         onPressed: showAddPipeDialog,
         child: Icon(Icons.add),
       ),
-    );
-  }
-
-  ListView pipeListView() {
-    return ListView.builder(
-      padding: EdgeInsets.all(10),
-      itemCount: pipes.length,
-      itemBuilder: (context, index) {
-        final pipe = pipes[index];
-        return Container(
-          margin: EdgeInsets.only(
-            bottom: index == pipes.length - 1 ? 200.0 : 0.0,
-          ),
-          child: Card(
-            elevation: 2,
-            color: Theme.of(context).colorScheme.surface,
-            margin: EdgeInsets.only(left: 10, right: 10, top: 16),
-            child: ListTile(
-              title: Text(
-                  style: TextStyle(fontSize: 22), "Rör: ${pipe.size.label}"),
-              subtitle: Text(
-                  style: TextStyle(fontSize: 18),
-                  "Längd: ${pipe.length}m\n"
-                  "Första lager: (${pipe.firstLayerMaterial.name}): ${pipe.getFirstLayerArea().ceil()} m², Bunt: ${pipe.getFirstLayerRolls().ceil()}"
-                  "${pipe.secondLayerMaterial != null ? "\nAndra lager (${pipe.secondLayerMaterial!.name}): ${pipe.getSecondLayerArea().ceil()} m², Bunt: ${pipe.getSecondLayerRolls().ceil()}" : ""}" /* "${pipe.firstLayerMaterial == pipe.secondLayerMaterial ? "\nTotal: ${pipe.getTotalArea().ceil()} m², Bunt: ${pipe.getTotalRolls().ceil()}" : ""}" */),
-              trailing: IconButton(
-                icon: Icon(
-                  Icons.delete,
-                ),
-                onPressed: () {
-                  removePipe(index);
-                },
-              ),
-            ),
-          ),
-        );
-      },
     );
   }
 }
