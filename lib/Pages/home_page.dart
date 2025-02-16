@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:insulation_app/models/insulated_pipe.dart';
 import 'package:insulation_app/models/project.dart';
 import 'package:insulation_app/util/add_pipe_dialog_box.dart';
@@ -67,28 +66,26 @@ class _HomePageState extends State<HomePage> {
     double newTotal50 = 0;
     double newTotal80 = 0;
 
-    for (var pipe in pipes) {
-      switch (pipe.firstLayerMaterial.insulationThickness) {
+    void addArea(double thickness, double area) {
+      switch (thickness) {
         case 0.03:
-          newTotal30 += pipe.getFirstLayerArea().ceil();
+          newTotal30 += area.ceil();
           break;
         case 0.05:
-          newTotal50 += pipe.getFirstLayerArea().ceil();
+          newTotal50 += area.ceil();
           break;
         case 0.08:
-          newTotal80 += pipe.getFirstLayerArea().ceil();
+          newTotal80 += area.ceil();
           break;
       }
-      switch (pipe.secondLayerMaterial?.insulationThickness) {
-        case 0.03:
-          newTotal30 += pipe.getSecondLayerArea().ceil();
-          break;
-        case 0.05:
-          newTotal50 += pipe.getSecondLayerArea().ceil();
-          break;
-        case 0.08:
-          newTotal80 += pipe.getSecondLayerArea().ceil();
-          break;
+    }
+
+    for (var pipe in pipes) {
+      addArea(pipe.firstLayerMaterial.insulationThickness,
+          pipe.getFirstLayerArea());
+      if (pipe.secondLayerMaterial != null) {
+        addArea(pipe.secondLayerMaterial!.insulationThickness,
+            pipe.getSecondLayerArea());
       }
     }
 
