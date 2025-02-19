@@ -1,11 +1,21 @@
+import 'package:hive/hive.dart';
 import 'package:insulation_app/models/insulated_pipe.dart';
 
-class Project {
-  final String projectNumber;
-  final String name;
-  final DateTime date;
-  final List<InsulatedPipe> pipes;
+part 'project.g.dart';
 
+@HiveType(typeId: 0)
+class Project extends HiveObject {
+  @HiveField(0)
+  String projectNumber;
+
+  @HiveField(1)
+  String name;
+
+  @HiveField(2)
+  DateTime date;
+
+  @HiveField(3)
+  List<InsulatedPipe> pipes;
   Project({
     required this.projectNumber,
     required this.name,
