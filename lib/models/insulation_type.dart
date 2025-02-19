@@ -1,8 +1,15 @@
-/// Material Model
-class InsulationType {
+import 'package:hive/hive.dart';
+
+part 'insulation_type.g.dart';
+
+@HiveType(typeId: 2)
+class InsulationType extends HiveObject {
+  @HiveField(0)
   final String name;
+  @HiveField(1)
   final double insulationThickness;
-  final double insulationAreaPerMeter; 
+  @HiveField(2)
+  final double insulationAreaPerMeter;
 
   InsulationType(
       this.name, this.insulationThickness, this.insulationAreaPerMeter);

@@ -1,13 +1,16 @@
-/// Pipe Size Model
-class PipeSize {
-  final String label; 
-  final double diameter; 
+import 'package:hive/hive.dart';
 
+part 'pipe_size.g.dart';
+
+@HiveType(typeId: 3)
+class PipeSize extends HiveObject {
+  @HiveField(0)
+  String label;
+
+  @HiveField(1)
+  double diameter;
   PipeSize(this.label, this.diameter);
 }
-
-
-
 
 final List<PipeSize> pipeSizes = [
   PipeSize("100 mm", 0.1),

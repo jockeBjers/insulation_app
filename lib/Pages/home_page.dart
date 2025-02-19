@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:insulation_app/models/insulated_pipe.dart';
 import 'package:insulation_app/models/project.dart';
 import 'package:insulation_app/util/add_pipe_dialog_box.dart';
@@ -16,14 +16,16 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<Project> projects = [];
+  late Box<Project> projectBox;
   Project? selectedProject;
 
   @override
   void initState() {
     super.initState();
-    if (projects.isNotEmpty) {
-      selectedProject = projects[0];
+    projectBox = Hive.box<Project>('projects');
+    if (projectBox.isNotEmpty) {
+      selectedProject = projectBox.values.first;
+      calculateTotalMaterial();
     }
   }
 
@@ -36,14 +38,16 @@ class _HomePageState extends State<HomePage> {
         return AddPipeDialog(
           onAddPipe: (selectedSize, firstLayer, secondLayer, length) {
             setState(() {
-              pipes.add(InsulatedPipe(
+              final newPipe = InsulatedPipe(
                 size: selectedSize,
                 length: length,
                 firstLayerMaterial: firstLayer,
                 secondLayerMaterial: secondLayer,
-              ));
+              );
+              selectedProject?.pipes.add(newPipe);
+              selectedProject?.save();
+              calculateTotalMaterial();
             });
-            calculateTotalMaterial();
           },
         );
       },
@@ -52,9 +56,10 @@ class _HomePageState extends State<HomePage> {
 
   void removePipe(int index) {
     setState(() {
-      pipes.removeAt(index);
+      selectedProject?.pipes.removeAt(index);
+      selectedProject?.save();
+      calculateTotalMaterial();
     });
-    calculateTotalMaterial();
   }
 
 //summary
@@ -67,28 +72,26 @@ class _HomePageState extends State<HomePage> {
     double newTotal50 = 0;
     double newTotal80 = 0;
 
-    for (var pipe in pipes) {
-      switch (pipe.firstLayerMaterial.insulationThickness) {
+    void addArea(double thickness, double area) {
+      switch (thickness) {
         case 0.03:
-          newTotal30 += pipe.getFirstLayerArea().ceil();
+          newTotal30 += area.ceil();
           break;
         case 0.05:
-          newTotal50 += pipe.getFirstLayerArea().ceil();
+          newTotal50 += area.ceil();
           break;
         case 0.08:
-          newTotal80 += pipe.getFirstLayerArea().ceil();
+          newTotal80 += area.ceil();
           break;
       }
-      switch (pipe.secondLayerMaterial?.insulationThickness) {
-        case 0.03:
-          newTotal30 += pipe.getSecondLayerArea().ceil();
-          break;
-        case 0.05:
-          newTotal50 += pipe.getSecondLayerArea().ceil();
-          break;
-        case 0.08:
-          newTotal80 += pipe.getSecondLayerArea().ceil();
-          break;
+    }
+
+    for (var pipe in pipes) {
+      addArea(pipe.firstLayerMaterial.insulationThickness,
+          pipe.getFirstLayerArea());
+      if (pipe.secondLayerMaterial != null) {
+        addArea(pipe.secondLayerMaterial!.insulationThickness,
+            pipe.getSecondLayerArea());
       }
     }
 
@@ -113,13 +116,14 @@ class _HomePageState extends State<HomePage> {
         return AddProjectDialog(
           onAddProject: (projectNumber, name, date) {
             setState(() {
-              projects.add(Project(
+              final newProject = Project(
                 projectNumber: projectNumber,
                 name: name,
                 date: date,
                 pipes: [],
-              ));
-              selectProject(projects.last);
+              );
+              projectBox.put(projectNumber, newProject);
+              selectProject(newProject);
             });
           },
         );
@@ -129,13 +133,16 @@ class _HomePageState extends State<HomePage> {
 
   void removeProject(int index) {
     setState(() {
-      projects.removeAt(index);
+      if (projectBox.isNotEmpty) {
+        final project = projectBox.getAt(index);
+        project?.delete();
+        if (projectBox.isNotEmpty) {
+          selectProject(projectBox.values.first);
+        } else {
+          selectedProject = null;
+        }
+      }
     });
-    if (projects.isNotEmpty) {
-      selectProject(projects[0]);
-    } else {
-      selectedProject = null;
-    }
   }
 
   @override
@@ -173,7 +180,6 @@ class _HomePageState extends State<HomePage> {
 
       // Drawer
       drawer: CustomDrawer(
-        projects: projects,
         selectProject: selectProject,
         removeProject: removeProject,
         showAddProjectDialog: showAddProjectDialog,
