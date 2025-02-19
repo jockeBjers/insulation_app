@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:insulation_app/models/insulation_type.dart';
 import 'package:insulation_app/models/pipe_size.dart';
+
 class AddPipeDialog extends StatelessWidget {
   final Function(PipeSize, InsulationType, InsulationType?, double) onAddPipe;
 
   const AddPipeDialog({super.key, required this.onAddPipe});
 
-
   @override
   Widget build(BuildContext context) {
-
-  PipeSize? selectedSize;
-  InsulationType? selectedFirstLayer;
-  InsulationType? selectedSecondLayer;
-  final TextEditingController lengthController = TextEditingController();
+    PipeSize? selectedSize;
+    InsulationType? selectedFirstLayer;
+    InsulationType? selectedSecondLayer;
+    final TextEditingController lengthController = TextEditingController();
 
     return AlertDialog(
       title: Text("Lägg till"),
@@ -79,8 +78,7 @@ class AddPipeDialog extends StatelessWidget {
             onChanged: (value) {
               selectedSecondLayer = value;
             },
-            decoration:
-                InputDecoration(labelText: "Andra lager (valfritt)"),
+            decoration: InputDecoration(labelText: "Andra lager (valfritt)"),
           ),
         ],
       ),
@@ -93,8 +91,8 @@ class AddPipeDialog extends StatelessWidget {
                 selectedFirstLayer != null &&
                 lengthController.text.isNotEmpty) {
               double length = double.parse(lengthController.text);
-              onAddPipe(selectedSize!, selectedFirstLayer!,
-                  selectedSecondLayer, length);
+              onAddPipe(selectedSize!, selectedFirstLayer!, selectedSecondLayer,
+                  length);
               Navigator.pop(context);
             }
           },
