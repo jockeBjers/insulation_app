@@ -1,18 +1,24 @@
+import 'package:equatable/equatable.dart';
 import 'package:hive/hive.dart';
 
 part 'insulation_type.g.dart';
 
 @HiveType(typeId: 2)
-class InsulationType extends HiveObject {
+class InsulationType extends HiveObject with EquatableMixin {
   @HiveField(0)
   final String name;
+
   @HiveField(1)
   final double insulationThickness;
+
   @HiveField(2)
   final double insulationAreaPerMeter;
 
   InsulationType(
       this.name, this.insulationThickness, this.insulationAreaPerMeter);
+
+  @override
+  List<Object> get props => [name, insulationThickness, insulationAreaPerMeter];
 }
 
 final List<InsulationType> materials = [

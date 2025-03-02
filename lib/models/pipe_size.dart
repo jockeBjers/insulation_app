@@ -1,15 +1,19 @@
+import 'package:equatable/equatable.dart';
 import 'package:hive/hive.dart';
-
 part 'pipe_size.g.dart';
 
 @HiveType(typeId: 3)
-class PipeSize extends HiveObject {
+class PipeSize extends HiveObject with EquatableMixin {
   @HiveField(0)
-  String label;
+  final String label;
 
   @HiveField(1)
-  double diameter;
+  final double diameter;
+
   PipeSize(this.label, this.diameter);
+
+  @override
+  List<Object> get props => [label, diameter];
 }
 
 final List<PipeSize> pipeSizes = [
