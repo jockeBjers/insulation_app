@@ -4,6 +4,7 @@ import 'package:insulation_app/models/insulated_pipe.dart';
 import 'package:insulation_app/models/project.dart';
 import 'package:insulation_app/util/add_pipe_dialog_box.dart';
 import 'package:insulation_app/util/add_project_dialog_box.dart';
+import 'package:insulation_app/util/edit_pipe_dialog_box.dart';
 import 'package:insulation_app/util/widgets/custom_drawer.dart';
 import 'package:insulation_app/util/widgets/pipe_list_view.dart';
 import 'package:insulation_app/util/widgets/summary_view.dart';
@@ -45,6 +46,32 @@ class _HomePageState extends State<HomePage> {
                 secondLayerMaterial: secondLayer,
               );
               selectedProject?.pipes.add(newPipe);
+              selectedProject?.save();
+              calculateTotalMaterial();
+            });
+          },
+        );
+      },
+    );
+  }
+
+  void editPipe({required InsulatedPipe pipe, required int index}) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return EditPipeDialog(
+          initialSize: pipe.size,
+          initialFirstLayer: pipe.firstLayerMaterial,
+          initialSecondLayer: pipe.secondLayerMaterial,
+          initialLength: pipe.length,
+          onEditPipe: (selectedSize, firstLayer, secondLayer, length) {
+            setState(() {
+              pipes[index] = InsulatedPipe(
+                size: selectedSize,
+                length: length,
+                firstLayerMaterial: firstLayer,
+                secondLayerMaterial: secondLayer,
+              );
               selectedProject?.save();
               calculateTotalMaterial();
             });
@@ -197,7 +224,11 @@ class _HomePageState extends State<HomePage> {
               Expanded(
                   child: pipes.isEmpty
                       ? Center(child: Text("Inga rör tillagda"))
-                      : PipeListView(pipes: pipes, removePipe: removePipe)),
+                      : PipeListView(
+                          pipes: pipes,
+                          removePipe: removePipe,
+                          editPipe: editPipe,
+                        )),
 
               // Summary view
               SummaryView(
