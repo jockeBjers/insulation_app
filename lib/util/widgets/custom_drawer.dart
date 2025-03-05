@@ -4,12 +4,14 @@ import 'package:insulation_app/models/project.dart';
 
 class CustomDrawer extends StatelessWidget {
   final Function(Project) selectProject;
+  final Function(Project) editProject;
   final Function(int) removeProject;
   final VoidCallback showAddProjectDialog;
 
   const CustomDrawer({
     super.key,
     required this.selectProject,
+    required this.editProject,
     required this.removeProject,
     required this.showAddProjectDialog,
   });
@@ -61,11 +63,22 @@ class CustomDrawer extends StatelessWidget {
                       selectProject(projects[projectIndex]);
                       Navigator.pop(context);
                     },
-                    trailing: IconButton(
-                      icon: Icon(Icons.delete),
-                      onPressed: () {
-                        removeProject(projectIndex);
-                      },
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.edit),
+                          onPressed: () {
+                            editProject(projects[projectIndex]);
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.delete),
+                          onPressed: () {
+                            removeProject(projectIndex);
+                          },
+                        ),
+                      ],
                     ),
                   ),
                 );

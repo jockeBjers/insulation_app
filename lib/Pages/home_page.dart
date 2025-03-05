@@ -5,6 +5,7 @@ import 'package:insulation_app/models/project.dart';
 import 'package:insulation_app/util/add_pipe_dialog_box.dart';
 import 'package:insulation_app/util/add_project_dialog_box.dart';
 import 'package:insulation_app/util/edit_pipe_dialog_box.dart';
+import 'package:insulation_app/util/edit_project_dialog_box.dart';
 import 'package:insulation_app/util/widgets/custom_drawer.dart';
 import 'package:insulation_app/util/widgets/pipe_list_view.dart';
 import 'package:insulation_app/util/widgets/summary_view.dart';
@@ -162,6 +163,22 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void editProject(Project project) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return EditProjectDialog(
+          project: project,
+          onEditProject: (updatedProject) {
+            setState(() {
+              projectBox.put(updatedProject.projectNumber, updatedProject);
+            });
+          },
+        );
+      },
+    );
+  }
+
   void removeProject(int index) {
     setState(() {
       if (projectBox.isNotEmpty) {
@@ -180,7 +197,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 80,
+        toolbarHeight: 100,
         title: Padding(
           padding: const EdgeInsets.all(8.0),
           child: selectedProject != null
@@ -197,7 +214,11 @@ class _HomePageState extends State<HomePage> {
                       style: TextStyle(fontSize: 16),
                     ),
                     Text(
-                      "Datum: ${selectedProject!.date.toLocal().toString().split(" ")[0]}", // Only show date
+                      "Datum: ${selectedProject!.date.toLocal().toString().split(" ")[0]}",
+                      style: TextStyle(fontSize: 16),
+                    ),
+                    Text(
+                      "Adress: ${selectedProject!.address}",
                       style: TextStyle(fontSize: 16),
                     ),
                   ],
@@ -212,6 +233,7 @@ class _HomePageState extends State<HomePage> {
       // Drawer
       drawer: CustomDrawer(
         selectProject: selectProject,
+        editProject: editProject,
         removeProject: removeProject,
         showAddProjectDialog: showAddProjectDialog,
       ),
