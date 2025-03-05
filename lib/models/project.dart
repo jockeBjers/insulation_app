@@ -20,11 +20,18 @@ class Project extends HiveObject {
   @HiveField(4)
   String address;
 
-  Project({
-    required this.projectNumber,
-    required this.name,
-    required this.date,
-    required this.pipes,
-    this.address = "",
-  });
+  @HiveField(5)
+  String contactPerson;
+
+  @HiveField(6)
+  String contactNumber;
+
+  Project(
+      {required this.projectNumber,
+      required this.name,
+      required this.date,
+      required this.pipes,
+      this.address = "",
+      this.contactPerson = "",
+      this.contactNumber = ""});
 }

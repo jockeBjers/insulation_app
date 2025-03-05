@@ -22,13 +22,15 @@ class ProjectAdapter extends TypeAdapter<Project> {
       date: fields[2] as DateTime,
       pipes: (fields[3] as List).cast<InsulatedPipe>(),
       address: fields[4] as String,
+      contactPerson: fields[5] as String,
+      contactNumber: fields[6] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, Project obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.projectNumber)
       ..writeByte(1)
@@ -38,7 +40,11 @@ class ProjectAdapter extends TypeAdapter<Project> {
       ..writeByte(3)
       ..write(obj.pipes)
       ..writeByte(4)
-      ..write(obj.address);
+      ..write(obj.address)
+      ..writeByte(5)
+      ..write(obj.contactPerson)
+      ..writeByte(6)
+      ..write(obj.contactNumber);
   }
 
   @override

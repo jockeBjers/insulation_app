@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AddProjectDialog extends StatefulWidget {
-  final Function(String, String, String, DateTime) onAddProject;
+  final Function(String, String, String, String, String, DateTime) onAddProject;
 
   const AddProjectDialog({super.key, required this.onAddProject});
 
@@ -14,6 +14,8 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
   final TextEditingController projectNumberController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController addressController = TextEditingController();
+  final TextEditingController contactPersonController = TextEditingController();
+  final TextEditingController contactNumberController = TextEditingController();
   DateTime selectedDate = DateTime.now();
 
   void openGoogleMaps() async {
@@ -24,6 +26,17 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
       await launchUrl(Uri.parse(url));
     } else {
       throw Exception('Could not launch $url');
+    }
+  }
+
+  Future<void> launchCall() async {
+    String phoneNumber = contactNumberController.text;
+    final Uri urlParsed = Uri.parse('tel:$phoneNumber');
+
+    if (await canLaunchUrl(urlParsed)) {
+      await launchUrl(urlParsed);
+    } else {
+      throw 'Could not launch call to: $phoneNumber';
     }
   }
 
@@ -50,6 +63,18 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                 icon: Icon(Icons.map),
                 onPressed: openGoogleMaps,
               ),
+            ),
+          ),
+          TextField(
+            controller: contactPersonController,
+            decoration: InputDecoration(labelText: "Kontaktperson"),
+          ),
+          TextField(
+            controller: contactNumberController,
+            decoration: InputDecoration(
+              labelText: "Kontaktnummer",
+              suffixIcon: IconButton(
+                  icon: Icon(Icons.phone_android), onPressed: launchCall),
             ),
           ),
           const SizedBox(height: 10),
@@ -90,6 +115,8 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
                 projectNumberController.text,
                 nameController.text,
                 addressController.text,
+                contactPersonController.text,
+                contactNumberController.text,
                 selectedDate,
               );
               Navigator.pop(context);
