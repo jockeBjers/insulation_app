@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AddProjectDialog extends StatefulWidget {
-  final Function(String, String, DateTime) onAddProject;
+  final Function(String, String, String, DateTime) onAddProject;
+
   const AddProjectDialog({super.key, required this.onAddProject});
 
   @override
@@ -11,7 +13,20 @@ class AddProjectDialog extends StatefulWidget {
 class _AddProjectDialogState extends State<AddProjectDialog> {
   final TextEditingController projectNumberController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
+  final TextEditingController addressController = TextEditingController();
   DateTime selectedDate = DateTime.now();
+
+  void openGoogleMaps() async {
+    String address = Uri.encodeComponent(addressController.text);
+    String url = "https://www.google.com/maps/search/?api=1&query=$address";
+
+    if (await canLaunchUrl(Uri.parse(url))) {
+      await launchUrl(Uri.parse(url));
+    } else {
+      throw Exception('Could not launch $url');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -27,12 +42,20 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
             controller: nameController,
             decoration: const InputDecoration(labelText: "Namn"),
           ),
-          SizedBox(
-            height: 10,
+          TextField(
+            controller: addressController,
+            decoration: InputDecoration(
+              labelText: "Adress",
+              suffixIcon: IconButton(
+                icon: Icon(Icons.map),
+                onPressed: openGoogleMaps,
+              ),
+            ),
           ),
+          const SizedBox(height: 10),
           Row(
             children: [
-              Text("datum: ${selectedDate.toLocal().toString().split(" ")[0]}"),
+              Text("Datum: ${selectedDate.toLocal().toString().split(" ")[0]}"),
               IconButton(
                 icon: Icon(Icons.calendar_today),
                 onPressed: () async {
@@ -55,18 +78,18 @@ class _AddProjectDialogState extends State<AddProjectDialog> {
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.pop(
-            context,
-          ),
+          onPressed: () => Navigator.pop(context),
           child: const Text("Avbryt"),
         ),
         ElevatedButton(
           onPressed: () {
             if (projectNumberController.text.isNotEmpty &&
-                nameController.text.isNotEmpty) {
+                nameController.text.isNotEmpty &&
+                addressController.text.isNotEmpty) {
               widget.onAddProject(
                 projectNumberController.text,
                 nameController.text,
+                addressController.text,
                 selectedDate,
               );
               Navigator.pop(context);

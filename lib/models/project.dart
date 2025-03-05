@@ -16,10 +16,15 @@ class Project extends HiveObject {
 
   @HiveField(3)
   List<InsulatedPipe> pipes;
+
+  @HiveField(4)
+  String address;
+
   Project({
     required this.projectNumber,
     required this.name,
     required this.date,
     required this.pipes,
+    this.address = "",
   });
 }

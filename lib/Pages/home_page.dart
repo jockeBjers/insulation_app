@@ -141,11 +141,12 @@ class _HomePageState extends State<HomePage> {
       context: context,
       builder: (context) {
         return AddProjectDialog(
-          onAddProject: (projectNumber, name, date) {
+          onAddProject: (projectNumber, name, address, date) {
             setState(() {
               final newProject = Project(
                 projectNumber: projectNumber,
                 name: name,
+                address: address,
                 date: date,
                 pipes: [],
               );
