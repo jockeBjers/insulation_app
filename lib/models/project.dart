@@ -16,10 +16,22 @@ class Project extends HiveObject {
 
   @HiveField(3)
   List<InsulatedPipe> pipes;
-  Project({
-    required this.projectNumber,
-    required this.name,
-    required this.date,
-    required this.pipes,
-  });
+
+  @HiveField(4)
+  String address;
+
+  @HiveField(5)
+  String contactPerson;
+
+  @HiveField(6)
+  String contactNumber;
+
+  Project(
+      {required this.projectNumber,
+      required this.name,
+      required this.date,
+      required this.pipes,
+      this.address = "",
+      this.contactPerson = "",
+      this.contactNumber = ""});
 }
