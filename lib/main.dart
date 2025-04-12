@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:insulation_app/Pages/home_page.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:insulation_app/firebase_options.dart';
+import 'package:insulation_app/util/auth/auth_wrapper.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,13 +26,13 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      locale: Locale('sv'),
+      locale: const Locale('sv'),
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: [const Locale('en'), const Locale('sv')],
+      supportedLocales: const [Locale('en'), Locale('sv')],
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         appBarTheme: const AppBarTheme(
@@ -47,7 +47,7 @@ class MyApp extends StatelessWidget {
         textTheme: GoogleFonts.patrickHandTextTheme(),
         useMaterial3: true,
       ),
-      home: HomePage(),
+      home: const AuthWrapper(),
     );
   }
 }
