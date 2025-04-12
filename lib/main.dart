@@ -1,23 +1,21 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:insulation_app/Pages/home_page.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:insulation_app/models/insulated_pipe.dart';
-import 'package:insulation_app/models/insulation_type.dart';
-import 'package:insulation_app/models/pipe_size.dart';
-import 'package:insulation_app/models/project.dart';
+import 'package:insulation_app/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Hive.initFlutter();
 
-  Hive.registerAdapter(InsulationTypeAdapter());
-  Hive.registerAdapter(PipeSizeAdapter());
-  Hive.registerAdapter(InsulatedPipeAdapter());
-  Hive.registerAdapter(ProjectAdapter());
-
-  await Hive.openBox<Project>('projects');
+  // Initialize Firebase
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  FirebaseFirestore.instance.settings = const Settings(
+    persistenceEnabled: true,
+  );
 
   runApp(const MyApp());
 }
@@ -29,7 +27,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       locale: Locale('sv'),
-      localizationsDelegates: [
+      localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
@@ -37,8 +35,8 @@ class MyApp extends StatelessWidget {
       supportedLocales: [const Locale('en'), const Locale('sv')],
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        appBarTheme: AppBarTheme(
-          backgroundColor: const Color.fromARGB(226, 223, 204, 145),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color.fromARGB(226, 223, 204, 145),
           centerTitle: true,
           scrolledUnderElevation: 0,
         ),
