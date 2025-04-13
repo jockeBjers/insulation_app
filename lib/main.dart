@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:insulation_app/firebase_options.dart';
+import 'package:insulation_app/theme/app_theme.dart';
 import 'package:insulation_app/util/auth/auth_wrapper.dart';
 
 void main() async {
@@ -34,19 +34,7 @@ class MyApp extends StatelessWidget {
       ],
       supportedLocales: const [Locale('en'), Locale('sv')],
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Color.fromARGB(226, 223, 204, 145),
-          centerTitle: true,
-          scrolledUnderElevation: 0,
-        ),
-        colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color.fromARGB(255, 250, 204, 151),
-            surface: const Color.fromARGB(236, 233, 224, 197)),
-        primaryColor: const Color.fromARGB(226, 223, 204, 145),
-        textTheme: GoogleFonts.patrickHandTextTheme(),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.themeData,
       home: const AuthWrapper(),
     );
   }
