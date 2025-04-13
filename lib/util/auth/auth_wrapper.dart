@@ -35,13 +35,12 @@ class AuthWrapper extends StatelessWidget {
                 );
               }
 
-              // If user has Firestore data, show HomePage
+              // If user has Firestore data, show HomePage directly
               if (dataSnapshot.data == true) {
                 return const HomePage();
               }
 
-              // If user is authenticated but doesn't have Firestore data,
-              // show an error screen or redirect to account setup
+              // If user is authenticated but doesn't have Firestore data
               return Scaffold(
                 body: Center(
                   child: Column(
@@ -62,10 +61,7 @@ class AuthWrapper extends StatelessWidget {
                         onPressed: () async {
                           await authService.signout();
                           if (context.mounted) {
-                            Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const Login()));
+                            Navigator.pushReplacementNamed(context, '/login');
                           }
                         },
                         child: const Text("Logga ut"),
