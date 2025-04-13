@@ -36,29 +36,18 @@ class PipeListView extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: ListTile(
-                title: Text(
-                  "Rör: ${pipe.size.label}",
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black87,
-                  ),
-                ),
-                subtitle: Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Text(
-                    "Längd: ${pipe.length}m\n"
-                    "Första lager: (${pipe.firstLayerMaterial.name}): ${pipe.getFirstLayerArea().ceil()} m², Bunt: ${pipe.getFirstLayerRolls().ceil()}"
-                    "${pipe.secondLayerMaterial != null ? "\nAndra lager (${pipe.secondLayerMaterial!.name}): ${pipe.getSecondLayerArea().ceil()} m², Bunt: ${pipe.getSecondLayerRolls().ceil()}" : ""}",
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black87.withValues(alpha: 0.8),
-                    ),
-                  ),
-                ),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
+                title: Row(
                   children: [
+                    Expanded(
+                      child: Text(
+                        "Rör: ${pipe.size.label}",
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ),
                     IconButton(
                       icon: Icon(Icons.edit, color: Colors.blue[700]),
                       onPressed: () {
@@ -72,6 +61,18 @@ class PipeListView extends StatelessWidget {
                       },
                     ),
                   ],
+                ),
+                subtitle: Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Text(
+                    "Längd: ${pipe.length}m\n"
+                    "Första lager: (${pipe.firstLayerMaterial.name}): ${pipe.getFirstLayerArea().ceil()} m², Bunt: ${pipe.getFirstLayerRolls().ceil()}"
+                    "${pipe.secondLayerMaterial != null ? "\nAndra lager (${pipe.secondLayerMaterial!.name}): ${pipe.getSecondLayerArea().ceil()} m², Bunt: ${pipe.getSecondLayerRolls().ceil()}" : ""}",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.black87.withValues(alpha: 0.8),
+                    ),
+                  ),
                 ),
               ),
             ),
