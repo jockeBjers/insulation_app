@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:insulation_app/Pages/home_page.dart';
 import 'package:insulation_app/services/auth_service.dart';
 
@@ -45,7 +44,7 @@ class _LoginState extends State<Login> {
       );
 
       if (success && mounted) {
-        // Navigate to HomePage upon successful login
+        // Navigate to HomePage if login successful
         Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => const HomePage()));
       } else if (mounted) {
@@ -91,8 +90,7 @@ class _LoginState extends State<Login> {
           padding: const EdgeInsets.all(8.0),
           child: Text(
             "ISOLERAMERA",
-            style: TextStyle(
-              fontSize: 24,
+            style: theme.textTheme.headlineMedium?.copyWith(
               fontWeight: FontWeight.bold,
               color: theme.colorScheme.onPrimary,
             ),
@@ -107,11 +105,8 @@ class _LoginState extends State<Login> {
             children: [
               Text(
                 'Välkommen till IsoleraMera',
-                style: GoogleFonts.raleway(
-                  textStyle: const TextStyle(
-                    fontWeight: FontWeight.w500,
-                    fontSize: 18,
-                  ),
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w500,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -127,7 +122,8 @@ class _LoginState extends State<Login> {
                   padding: const EdgeInsets.only(bottom: 16),
                   child: Text(
                     _errorMessage!,
-                    style: const TextStyle(color: Colors.red),
+                    style:
+                        theme.textTheme.bodyMedium?.copyWith(color: Colors.red),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -148,33 +144,17 @@ class _LoginState extends State<Login> {
       children: [
         Text(
           'Email Adress',
-          style: GoogleFonts.raleway(
-              textStyle:
-                  const TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w500,
+          ),
         ),
         const SizedBox(height: 10),
         TextField(
           controller: _emailController,
           keyboardType: TextInputType.emailAddress,
           textInputAction: TextInputAction.next,
-          decoration: InputDecoration(
-            filled: true,
+          decoration: const InputDecoration(
             hintText: 'email...',
-            hintStyle: const TextStyle(
-                color: Colors.black54,
-                fontWeight: FontWeight.normal,
-                fontSize: 14),
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.grey[400]!),
-                borderRadius: BorderRadius.circular(2)),
-            enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.grey[400]!),
-                borderRadius: BorderRadius.circular(2)),
-            focusedBorder: OutlineInputBorder(
-                borderSide:
-                    BorderSide(color: theme.colorScheme.secondary, width: 2),
-                borderRadius: BorderRadius.circular(2)),
           ),
         )
       ],
@@ -190,9 +170,9 @@ class _LoginState extends State<Login> {
       children: [
         Text(
           'Lösenord',
-          style: GoogleFonts.raleway(
-              textStyle:
-                  const TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w500,
+          ),
         ),
         const SizedBox(height: 10),
         TextField(
@@ -200,24 +180,8 @@ class _LoginState extends State<Login> {
           controller: _passwordController,
           textInputAction: TextInputAction.done,
           onSubmitted: (_) => _signIn(),
-          decoration: InputDecoration(
-            filled: true,
+          decoration: const InputDecoration(
             hintText: 'Lösenord...',
-            hintStyle: const TextStyle(
-                color: Colors.black54,
-                fontWeight: FontWeight.normal,
-                fontSize: 14),
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.grey[400]!),
-                borderRadius: BorderRadius.circular(2)),
-            enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.grey[400]!),
-                borderRadius: BorderRadius.circular(2)),
-            focusedBorder: OutlineInputBorder(
-                borderSide:
-                    BorderSide(color: theme.colorScheme.secondary, width: 2),
-                borderRadius: BorderRadius.circular(2)),
           ),
         )
       ],
@@ -231,16 +195,13 @@ class _LoginState extends State<Login> {
       alignment: Alignment.centerRight,
       child: TextButton(
         onPressed: () {
-          // Navigate to password reset or show dialog
           _showForgotPasswordDialog();
         },
         child: Text(
           'Glömt lösenord?',
-          style: GoogleFonts.raleway(
-            textStyle: TextStyle(
-              color: theme.primaryColor,
-              fontWeight: FontWeight.w500,
-            ),
+          style: TextStyle(
+            color: theme.primaryColor,
+            fontWeight: FontWeight.w500,
           ),
         ),
       ),
@@ -272,44 +233,19 @@ class _LoginState extends State<Login> {
             TextField(
               controller: emailController,
               keyboardType: TextInputType.emailAddress,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Email',
                 hintText: 'Email...',
-                fillColor: Colors.white,
-                filled: true,
-                border: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey[400]!),
-                    borderRadius: BorderRadius.circular(2)),
-                enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey[400]!),
-                    borderRadius: BorderRadius.circular(2)),
-                focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                        color: theme.colorScheme.secondary, width: 2),
-                    borderRadius: BorderRadius.circular(2)),
               ),
             ),
           ],
         ),
         actions: [
           TextButton(
-            style: TextButton.styleFrom(
-              foregroundColor: theme.primaryColor,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
             onPressed: () => Navigator.pop(context),
             child: const Text('Avbryt'),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: theme.colorScheme.secondary,
-              foregroundColor: Colors.black87,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
             onPressed: () async {
               if (emailController.text.isNotEmpty) {
                 Navigator.pop(context);
@@ -339,13 +275,7 @@ class _LoginState extends State<Login> {
 
     return ElevatedButton(
       style: ElevatedButton.styleFrom(
-        backgroundColor: theme.colorScheme.secondary, // Amber button
-        foregroundColor: Colors.black87, // Dark text
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(2), // Square corners
-        ),
         minimumSize: const Size(double.infinity, 50),
-        elevation: 2,
       ),
       onPressed: _isLoading ? null : _signIn,
       child: _isLoading
@@ -356,11 +286,8 @@ class _LoginState extends State<Login> {
             )
           : Text(
               "Logga in",
-              style: GoogleFonts.raleway(
-                textStyle: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
               ),
             ),
     );
