@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:insulation_app/models/project.dart';
+import 'package:insulation_app/models/projects/project.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class EditProjectDialog extends StatefulWidget {
@@ -30,11 +30,12 @@ class _EditProjectDialogState extends State<EditProjectDialog> {
     projectNumberController =
         TextEditingController(text: widget.project.projectNumber);
     nameController = TextEditingController(text: widget.project.name);
-    addressController = TextEditingController(text: widget.project.address);
+    addressController =
+        TextEditingController(text: widget.project.address ?? '');
     contactPersonController =
-        TextEditingController(text: widget.project.contactPerson);
+        TextEditingController(text: widget.project.contactPerson ?? '');
     contactNumberController =
-        TextEditingController(text: widget.project.contactNumber);
+        TextEditingController(text: widget.project.contactNumber ?? '');
     selectedDate = widget.project.date;
   }
 
@@ -72,54 +73,105 @@ class _EditProjectDialogState extends State<EditProjectDialog> {
               controller: projectNumberController,
               decoration: const InputDecoration(labelText: "Projektnummer"),
             ),
+            const SizedBox(height: 10),
             TextField(
               controller: nameController,
               decoration: const InputDecoration(labelText: "Namn"),
             ),
+            const SizedBox(height: 10),
             TextField(
               controller: addressController,
               decoration: InputDecoration(
                 labelText: "Adress",
                 suffixIcon: IconButton(
-                  icon: Icon(Icons.map),
+                  icon: Icon(Icons.map,
+                      color: Theme.of(context).colorScheme.secondary),
                   onPressed: openGoogleMaps,
                 ),
               ),
             ),
+            const SizedBox(height: 10),
             TextField(
               controller: contactPersonController,
-              decoration: InputDecoration(labelText: "Kontaktperson"),
+              decoration: const InputDecoration(labelText: "Kontaktperson"),
             ),
+            const SizedBox(height: 10),
             TextField(
               controller: contactNumberController,
               decoration: InputDecoration(
                 labelText: "Kontaktnummer",
                 suffixIcon: IconButton(
-                    icon: Icon(Icons.phone_android), onPressed: launchCall),
+                    icon: Icon(Icons.phone_android,
+                        color: Theme.of(context).colorScheme.secondary),
+                    onPressed: launchCall),
               ),
             ),
             const SizedBox(height: 10),
-            Row(
-              children: [
-                Text(
-                    "Datum: ${selectedDate.toLocal().toString().split(" ")[0]}"),
-                IconButton(
-                  icon: Icon(Icons.calendar_today),
-                  onPressed: () async {
-                    DateTime? picked = await showDatePicker(
-                      context: context,
-                      initialDate: selectedDate,
-                      firstDate: DateTime(2010),
-                      lastDate: DateTime(2026),
+            InkWell(
+              onTap: () async {
+                final ThemeData theme = Theme.of(context);
+                DateTime? picked = await showDatePicker(
+                  context: context,
+                  initialDate: selectedDate,
+                  firstDate: DateTime(2010),
+                  lastDate: DateTime(2026),
+                  builder: (context, child) {
+                    return Theme(
+                      data: Theme.of(context).copyWith(
+                        colorScheme: theme.colorScheme.copyWith(
+                          primary: theme.primaryColor,
+                          onPrimary: Colors.white,
+                          onSurface: Colors.black87,
+                        ),
+                        textButtonTheme: TextButtonThemeData(
+                          style: TextButton.styleFrom(
+                            foregroundColor: theme.colorScheme.primary,
+                          ),
+                        ),
+                      ),
+                      child: child!,
                     );
-                    if (picked != null && picked != selectedDate) {
-                      setState(() {
-                        selectedDate = picked;
-                      });
-                    }
                   },
+                );
+                if (picked != null && picked != selectedDate) {
+                  setState(() {
+                    selectedDate = picked;
+                  });
+                }
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border.all(color: Colors.grey[400]!),
+                  borderRadius: BorderRadius.circular(4.0),
                 ),
-              ],
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            selectedDate.toLocal().toString().split(" ")[0],
+                            style: const TextStyle(
+                              color: Colors.black87,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(
+                      Icons.calendar_today,
+                      color: Theme.of(context).colorScheme.secondary,
+                      size: 24,
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
         ),
@@ -132,23 +184,25 @@ class _EditProjectDialogState extends State<EditProjectDialog> {
         ElevatedButton(
           onPressed: () {
             if (projectNumberController.text.isNotEmpty &&
-                nameController.text.isNotEmpty &&
-                addressController.text.isNotEmpty) {
+                nameController.text.isNotEmpty) {
               widget.onEditProject(
                 Project(
+                  id: widget.project.id, // Preserve the existing ID
                   projectNumber: projectNumberController.text,
                   name: nameController.text,
                   address: addressController.text,
                   contactPerson: contactPersonController.text,
                   contactNumber: contactNumberController.text,
                   date: selectedDate,
+                  organizationId:
+                      widget.project.organizationId, // Include organization ID
                   pipes: widget.project.pipes,
                 ),
               );
               Navigator.pop(context);
             }
           },
-          child: Text("Spara ändringar"),
+          child: const Text("Spara"),
         ),
       ],
     );

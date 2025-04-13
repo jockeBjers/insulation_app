@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:insulation_app/models/insulation_type.dart';
-import 'package:insulation_app/models/pipe_size.dart';
+import 'package:insulation_app/models/insulation_type/insulation_type.dart';
+import 'package:insulation_app/models/pipe_size/pipe_size.dart';
 
 class EditPipeDialog extends StatelessWidget {
   final PipeSize initialSize;
@@ -27,7 +27,7 @@ class EditPipeDialog extends StatelessWidget {
         TextEditingController(text: initialLength.toString());
 
     return AlertDialog(
-      title: Text("Redigera rör"),
+      title: const Text("Redigera rör"),
       content: Form(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -42,19 +42,19 @@ class EditPipeDialog extends StatelessWidget {
                 );
               }).toList(),
               onChanged: (value) => selectedSize = value!,
-              decoration: InputDecoration(labelText: "Välj dimensioner"),
+              decoration: const InputDecoration(labelText: "Välj dimensioner"),
             ),
 
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
 
             // Pipe Length input
             TextFormField(
               controller: lengthController,
               keyboardType: TextInputType.number,
-              decoration: InputDecoration(labelText: "Rör längd (m)"),
+              decoration: const InputDecoration(labelText: "Rör längd (m)"),
             ),
 
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
 
             // First Layer Material dropdown
             DropdownButtonFormField<InsulationType>(
@@ -66,14 +66,15 @@ class EditPipeDialog extends StatelessWidget {
                 );
               }).toList(),
               onChanged: (value) => selectedFirstLayer = value!,
-              decoration: InputDecoration(labelText: "Första lager"),
+              decoration: const InputDecoration(labelText: "Första lager"),
             ),
 
+            const SizedBox(height: 10),
             // Second Layer Material dropdown
             DropdownButtonFormField<InsulationType?>(
               value: selectedSecondLayer,
               items: [
-                DropdownMenuItem<InsulationType?>(
+                const DropdownMenuItem<InsulationType?>(
                   value: null,
                   child: Text("Inget andra lager"),
                 ),
@@ -85,7 +86,8 @@ class EditPipeDialog extends StatelessWidget {
                 }),
               ],
               onChanged: (value) => selectedSecondLayer = value,
-              decoration: InputDecoration(labelText: "Andra lager (valfritt)"),
+              decoration:
+                  const InputDecoration(labelText: "Andra lager (valfritt)"),
             ),
           ],
         ),
@@ -93,7 +95,7 @@ class EditPipeDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: Text("Avbryt"),
+          child: const Text("Avbryt"),
         ),
         ElevatedButton(
           onPressed: () {
@@ -102,7 +104,7 @@ class EditPipeDialog extends StatelessWidget {
                 selectedSize, selectedFirstLayer, selectedSecondLayer, length);
             Navigator.pop(context);
           },
-          child: Text("Spara"),
+          child: const Text("Spara"),
         ),
       ],
     );
