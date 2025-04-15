@@ -1,14 +1,9 @@
+// ignore_for_file: prefer_const_constructors, avoid_print
+
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:insulation_app/models/insulated_pipe.dart';
-import 'package:insulation_app/models/project.dart';
-import 'package:insulation_app/util/add_pipe_dialog_box.dart';
-import 'package:insulation_app/util/add_project_dialog_box.dart';
-import 'package:insulation_app/util/edit_pipe_dialog_box.dart';
-import 'package:insulation_app/util/edit_project_dialog_box.dart';
-import 'package:insulation_app/util/widgets/custom_drawer.dart';
-import 'package:insulation_app/util/widgets/pipe_list_view.dart';
-import 'package:insulation_app/util/widgets/summary_view.dart';
+import 'package:insulation_app/Pages/projects_page.dart';
+import 'package:insulation_app/services/auth_service.dart';
+import 'package:insulation_app/services/firebase_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,256 +13,215 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late Box<Project> projectBox;
-  Project? selectedProject;
+  final FirebaseService _firebaseService = FirebaseService();
+  final AuthService _authService = AuthService();
+  bool _isLoading = true;
+  bool _hasProjects = false;
 
   @override
   void initState() {
     super.initState();
-    projectBox = Hive.box<Project>('projects');
-    if (projectBox.isNotEmpty) {
-      selectedProject = projectBox.values.first;
-      calculateTotalMaterial();
-    }
+    _checkProjects();
   }
 
-  List<InsulatedPipe> get pipes => selectedProject?.pipes ?? [];
-
-  void showAddPipeDialog() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AddPipeDialog(
-          onAddPipe: (selectedSize, firstLayer, secondLayer, length) {
-            setState(() {
-              final newPipe = InsulatedPipe(
-                size: selectedSize,
-                length: length,
-                firstLayerMaterial: firstLayer,
-                secondLayerMaterial: secondLayer,
-              );
-              selectedProject?.pipes.add(newPipe);
-              selectedProject?.save();
-              calculateTotalMaterial();
-            });
-          },
-        );
-      },
-    );
-  }
-
-  void editPipe({required InsulatedPipe pipe, required int index}) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return EditPipeDialog(
-          initialSize: pipe.size,
-          initialFirstLayer: pipe.firstLayerMaterial,
-          initialSecondLayer: pipe.secondLayerMaterial,
-          initialLength: pipe.length,
-          onEditPipe: (selectedSize, firstLayer, secondLayer, length) {
-            setState(() {
-              pipes[index] = InsulatedPipe(
-                size: selectedSize,
-                length: length,
-                firstLayerMaterial: firstLayer,
-                secondLayerMaterial: secondLayer,
-              );
-              selectedProject?.save();
-              calculateTotalMaterial();
-            });
-          },
-        );
-      },
-    );
-  }
-
-  void removePipe(int index) {
+  Future<void> _checkProjects() async {
     setState(() {
-      selectedProject?.pipes.removeAt(index);
-      selectedProject?.save();
-      calculateTotalMaterial();
+      _isLoading = true;
     });
-  }
 
-//summary
-  double total30 = 0;
-  double total50 = 0;
-  double total80 = 0;
+    try {
+      // Get current user to get their organization
+      final currentUser = await _firebaseService.getCurrentUser();
 
-  void calculateTotalMaterial() {
-    double newTotal30 = 0;
-    double newTotal50 = 0;
-    double newTotal80 = 0;
+      if (currentUser != null) {
+        print('Current user: ${currentUser.name}, role: ${currentUser.role}');
+        print('Organization ID: ${currentUser.organizationId}');
 
-    void addArea(double thickness, double area) {
-      switch (thickness) {
-        case 0.03:
-          newTotal30 += area.ceil();
-          break;
-        case 0.05:
-          newTotal50 += area.ceil();
-          break;
-        case 0.08:
-          newTotal80 += area.ceil();
-          break;
-      }
-    }
-
-    for (var pipe in pipes) {
-      addArea(pipe.firstLayerMaterial.insulationThickness,
-          pipe.getFirstLayerArea());
-      if (pipe.secondLayerMaterial != null) {
-        addArea(pipe.secondLayerMaterial!.insulationThickness,
-            pipe.getSecondLayerArea());
-      }
-    }
-
-    setState(() {
-      total30 = newTotal30;
-      total50 = newTotal50;
-      total80 = newTotal80;
-    });
-  }
-
-  void selectProject(Project project) {
-    setState(() {
-      selectedProject = project;
-    });
-    calculateTotalMaterial();
-  }
-
-  void showAddProjectDialog() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AddProjectDialog(
-          onAddProject: (projectNumber, name, address, contactPerson,
-              contactNumber, date) {
-            setState(() {
-              final newProject = Project(
-                projectNumber: projectNumber,
-                name: name,
-                address: address,
-                date: date,
-                contactPerson: contactPerson,
-                contactNumber: contactNumber,
-                pipes: [],
-              );
-              projectBox.put(projectNumber, newProject);
-              selectProject(newProject);
-            });
-          },
-        );
-      },
-    );
-  }
-
-  void editProject(Project project) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return EditProjectDialog(
-          project: project,
-          onEditProject: (updatedProject) {
-            setState(() {
-              projectBox.put(updatedProject.projectNumber, updatedProject);
-            });
-          },
-        );
-      },
-    );
-  }
-
-  void removeProject(int index) {
-    setState(() {
-      if (projectBox.isNotEmpty) {
-        final project = projectBox.getAt(index);
-        project?.delete();
-        if (projectBox.isNotEmpty) {
-          selectProject(projectBox.values.first);
+        // Check if there are any projects
+        if (currentUser.organizationId.isNotEmpty) {
+          final projects =
+              await _firebaseService.getProjects(currentUser.organizationId);
+          setState(() {
+            _hasProjects = projects.isNotEmpty;
+          });
+          print('Found ${projects.length} projects for this organization');
         } else {
-          selectedProject = null;
+          final projects = await _firebaseService.getAllProjects();
+          setState(() {
+            _hasProjects = projects.isNotEmpty;
+          });
+          print('Loaded ${projects.length} projects (all organizations)');
         }
+      } else {
+        print('Warning: No current user found');
+        final projects = await _firebaseService.getAllProjects();
+        setState(() {
+          _hasProjects = projects.isNotEmpty;
+        });
       }
+    } catch (e) {
+      print('Error checking projects: $e');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _navigateToProjects() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ProjectsPage()),
+    ).then((_) {
+      // Refresh when returning to home
+      _checkProjects();
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    if (_isLoading) {
+      return Scaffold(
+        appBar: AppBar(title: Text("Laddar...")),
+        body:
+            Center(child: CircularProgressIndicator(color: theme.primaryColor)),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: 100,
-        title: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: selectedProject != null
-              ? Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      selectedProject!.name,
-                      style:
-                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      "Projektnummer: ${selectedProject!.projectNumber}",
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    Text(
-                      "Datum: ${selectedProject!.date.toLocal().toString().split(" ")[0]}",
-                      style: TextStyle(fontSize: 16),
-                    ),
-                    Text(
-                      "Adress: ${selectedProject!.address}",
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ],
-                )
-              : Text(
-                  "Isoleringsberäknaren",
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-        ),
-      ),
-
-      // Drawer
-      drawer: CustomDrawer(
-        selectProject: selectProject,
-        editProject: editProject,
-        removeProject: removeProject,
-        showAddProjectDialog: showAddProjectDialog,
-      ),
-
-      // Body
-      body: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: 600,
+        title: Text(
+          "ISOLERAMERA",
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
           ),
-          child: Column(
-            children: [
-              // List of pipes
-              Expanded(
-                  child: pipes.isEmpty
-                      ? Center(child: Text("Inga rör tillagda"))
-                      : PipeListView(
-                          pipes: pipes,
-                          removePipe: removePipe,
-                          editPipe: editPipe,
-                        )),
-
-              // Summary view
-              SummaryView(
-                  total30: total30,
-                  total50: total50,
-                  total80: total80), // end container
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await _authService.signout();
+              if (context.mounted) {
+                Navigator.pushReplacementNamed(context, '/login');
+              }
+            },
+            tooltip: 'Logga ut',
+          ),
+        ],
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              theme.colorScheme.primary.withValues(alpha: .05),
+              theme.colorScheme.primary.withValues(alpha: .2),
             ],
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: showAddPipeDialog,
-        child: Icon(Icons.add),
+        child: Column(
+          children: [
+            Expanded(
+              child: Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // TODO: real logo
+                      Container(
+                        height: 120,
+                        width: 120,
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.primary,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: theme.colorScheme.primary
+                                  .withValues(alpha: .3),
+                              blurRadius: 15,
+                              spreadRadius: 5,
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.construction,
+                          size: 64,
+                          color: Colors.white,
+                        ),
+                      ),
+
+                      SizedBox(height: 40),
+
+                      Text(
+                        "Välkommen till Isoleringsberäknaren",
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: theme.colorScheme.primary,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+
+                      SizedBox(height: 16),
+
+                      Text(
+                        "Räkna på isolering och hantera projekt enkelt och effektivt",
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.grey[700],
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+
+                      SizedBox(height: 60),
+
+                      ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: theme.colorScheme.primary,
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 32, vertical: 16),
+                          textStyle: TextStyle(fontSize: 18),
+                        ),
+                        onPressed: _navigateToProjects,
+                        icon: Icon(
+                          _hasProjects ? Icons.business : Icons.add_business,
+                          size: 24,
+                        ),
+                        label: Text(_hasProjects
+                            ? "Visa projekt"
+                            : "Skapa ditt första projekt"),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            // Footer
+            Container(
+              width: double.infinity,
+              padding:
+                  const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primary,
+              ),
+              child: Center(
+                child: Text(
+                  "© 2025 Isoleramera",
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: theme.colorScheme.onPrimary,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
