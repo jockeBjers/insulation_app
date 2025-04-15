@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:insulation_app/models/insulated_pipes/insulated_pipe.dart';
+import 'package:insulation_app/models/insulation_type/insulation_type.dart';
 import 'package:insulation_app/models/projects/project.dart';
 import 'package:insulation_app/services/firebase_service.dart';
 import 'package:insulation_app/util/add_pipe_dialog_box.dart';
 import 'package:insulation_app/util/edit_pipe_dialog_box.dart';
 import 'package:insulation_app/util/widgets/pipe_list_view.dart';
-import 'package:insulation_app/util/widgets/summary_view.dart';
+import 'package:insulation_app/util/widgets/summary_bottom_sheet.dart';
 
 class ProjectDetailPage extends StatefulWidget {
   final Project project;
@@ -21,10 +22,8 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
   late Project _project;
   bool _isLoading = true;
 
-  // For summary calculations
-  double total30 = 0;
-  double total50 = 0;
-  double total80 = 0;
+  // For summary calculations - using dynamic map
+  Map<String, double> insulationTotals = {};
 
   @override
   void initState() {
@@ -44,7 +43,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
         if (updatedProject != null) {
           setState(() {
             _project = updatedProject;
-            calculateTotalMaterial();
+            _calculateTotalMaterial();
           });
         }
       }
@@ -61,42 +60,41 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
     }
   }
 
-  void calculateTotalMaterial() {
-    double newTotal30 = 0;
-    double newTotal50 = 0;
-    double newTotal80 = 0;
+  void _calculateTotalMaterial() {
+    // Reset the map
+    Map<String, double> newTotals = {};
 
-    void addArea(double thickness, double area) {
-      switch (thickness) {
-        case 0.03:
-          newTotal30 += area.ceil();
-          break;
-        case 0.05:
-          newTotal50 += area.ceil();
-          break;
-        case 0.08:
-          newTotal80 += area.ceil();
-          break;
-      }
+    void addArea(InsulationType insulation, double area) {
+      // Use the insulation name as the key instead of just thickness
+      newTotals[insulation.name] =
+          (newTotals[insulation.name] ?? 0) + area.ceil();
     }
 
     for (var pipe in _project.pipes) {
-      addArea(pipe.firstLayerMaterial.insulationThickness,
-          pipe.getFirstLayerArea());
+      addArea(pipe.firstLayerMaterial, pipe.getFirstLayerArea());
       if (pipe.secondLayerMaterial != null) {
-        addArea(pipe.secondLayerMaterial!.insulationThickness,
-            pipe.getSecondLayerArea());
+        addArea(pipe.secondLayerMaterial!, pipe.getSecondLayerArea());
       }
     }
 
     setState(() {
-      total30 = newTotal30;
-      total50 = newTotal50;
-      total80 = newTotal80;
+      insulationTotals = newTotals;
     });
   }
 
-  void showAddPipeDialog() {
+  void _showSummaryDialog() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(4)),
+      ),
+      builder: (context) {
+        return SummaryBottomSheet(insulationTotals: insulationTotals);
+      },
+    );
+  }
+
+  void _showAddPipeDialog() {
     if (_project.id == null) return;
 
     showDialog(
@@ -124,7 +122,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
 
             // Update project in Firestore
             await _firebaseService.updateProject(updatedProject);
-            calculateTotalMaterial();
+            _calculateTotalMaterial();
           },
         );
       },
@@ -176,7 +174,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
           await _firebaseService.updateProject(updatedProject);
         }
 
-        calculateTotalMaterial();
+        _calculateTotalMaterial();
       }
     } catch (e) {
       if (mounted) {
@@ -219,7 +217,7 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
 
             // Update project in Firestore
             await _firebaseService.updateProject(updatedProject);
-            calculateTotalMaterial();
+            _calculateTotalMaterial();
           },
         );
       },
@@ -279,142 +277,172 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
             ],
           ),
         ),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(
-              maxWidth: 800,
-            ),
-            child: Column(
-              children: [
-                // Project info card
-                if (_project.address != null && _project.address!.isNotEmpty)
-                  Card(
-                    margin: const EdgeInsets.all(16),
-                    elevation: 2,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(Icons.info_outline,
-                              color: theme.colorScheme.primary),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
+        child: Column(
+          children: [
+            Expanded(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxWidth: 800,
+                  ),
+                  child: Column(
+                    children: [
+                      // Project info card
+                      if (_project.address != null &&
+                          _project.address!.isNotEmpty)
+                        Card(
+                          shape: const LinearBorder(),
+                          margin: const EdgeInsets.only(bottom: 16),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  '${_project.projectNumber} - ${_project.name}',
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '${_project.projectNumber} - ${_project.name}',
+                                        style: const TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      _buildInfoRow(
+                                        Icons.calendar_today,
+                                        "Datum",
+                                        _project.date
+                                            .toLocal()
+                                            .toString()
+                                            .split(' ')[0],
+                                      ),
+                                      if (_project.address != null &&
+                                          _project.address!.isNotEmpty)
+                                        _buildInfoRow(Icons.location_on,
+                                            "Adress", _project.address!),
+                                      if (_project.contactPerson != null &&
+                                          _project.contactPerson!.isNotEmpty)
+                                        _buildInfoRow(Icons.person, "Kontakt",
+                                            _project.contactPerson!),
+                                      if (_project.contactNumber != null &&
+                                          _project.contactNumber!.isNotEmpty)
+                                        _buildInfoRow(Icons.phone, "Telefon",
+                                            _project.contactNumber!),
+                                    ],
                                   ),
                                 ),
-                                Text(
-                                  _project.date
-                                      .toLocal()
-                                      .toString()
-                                      .split(' ')[0],
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                if (_project.address != null &&
-                                    _project.address!.isNotEmpty)
-                                  _buildInfoRow(Icons.location_on, "Adress",
-                                      _project.address!),
-                                if (_project.contactPerson != null &&
-                                    _project.contactPerson!.isNotEmpty)
-                                  _buildInfoRow(Icons.person, "Kontakt",
-                                      _project.contactPerson!),
-                                if (_project.contactNumber != null &&
-                                    _project.contactNumber!.isNotEmpty)
-                                  _buildInfoRow(Icons.phone, "Telefon",
-                                      _project.contactNumber!),
                               ],
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
+                        ),
 
-                // Pipes header
-                Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Rör (${_project.pipes.length})",
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                      // Pipes header
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                "Rör (${_project.pipes.length})",
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            ElevatedButton.icon(
+                              icon: const Icon(Icons.add_chart_outlined),
+                              label: const Text("Se total"),
+                              onPressed: _showSummaryDialog,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: theme.colorScheme.primary,
+                                foregroundColor: theme.colorScheme.onPrimary,
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            ElevatedButton.icon(
+                              icon: const Icon(Icons.add),
+                              label: const Text("Lägg till rör"),
+                              onPressed: _showAddPipeDialog,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: theme.colorScheme.primary,
+                                foregroundColor: theme.colorScheme.onPrimary,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      ElevatedButton.icon(
-                        icon: const Icon(Icons.add),
-                        label: const Text("Lägg till rör"),
-                        onPressed: showAddPipeDialog,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: theme.colorScheme.primary,
-                          foregroundColor: theme.colorScheme.onPrimary,
-                        ),
+
+                      // Pipes list
+                      Expanded(
+                        child: _project.pipes.isEmpty
+                            ? Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.plumbing_outlined,
+                                      size: 64,
+                                      color: Colors.grey[400],
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      "Inga rör har lagts till i det här projektet",
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.grey[700],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 24),
+                                    ElevatedButton.icon(
+                                      icon: const Icon(Icons.add),
+                                      label:
+                                          const Text("Lägg till första röret"),
+                                      onPressed: _showAddPipeDialog,
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            theme.colorScheme.primary,
+                                        foregroundColor:
+                                            theme.colorScheme.onPrimary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : PipeListView(
+                                pipes: _project.pipes,
+                                removePipe: removePipe,
+                                editPipe: editPipe,
+                              ),
                       ),
                     ],
                   ),
                 ),
-
-                // Pipes list
-                Expanded(
-                  child: _project.pipes.isEmpty
-                      ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.plumbing_outlined,
-                                size: 64,
-                                color: Colors.grey[400],
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                "Inga rör har lagts till i det här projektet",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.grey[700],
-                                ),
-                              ),
-                              const SizedBox(height: 24),
-                              ElevatedButton.icon(
-                                icon: const Icon(Icons.add),
-                                label: const Text("Lägg till första röret"),
-                                onPressed: showAddPipeDialog,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: theme.colorScheme.primary,
-                                  foregroundColor: theme.colorScheme.onPrimary,
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      : PipeListView(
-                          pipes: _project.pipes,
-                          removePipe: removePipe,
-                          editPipe: editPipe,
-                        ),
-                ),
-
-                // Display material summary
-                SummaryView(
-                  total30: total30,
-                  total50: total50,
-                  total80: total80,
-                ),
-              ],
+              ),
             ),
-          ),
+            // Footer
+            Container(
+              width: double.infinity,
+              padding:
+                  const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primary,
+              ),
+              child: Center(
+                child: Text(
+                  "© 2025 Isoleramera",
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: theme.colorScheme.onPrimary,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
