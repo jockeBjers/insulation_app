@@ -24,5 +24,107 @@ void main() {
         expect(result, closeTo(0.62, 0.01));
       });
     });
+
+    group('calculateArea', () {
+      test('should calculate area correctly', () {
+        // Arrange
+        const double diameter = 0.1;
+        const double thickness = 0.05;
+        const double pipeLength = 10.0;
+        const double layerMultiplier = 2.0;
+
+        // Act
+        final result = calculator.calculateArea(
+            diameter, thickness, pipeLength, layerMultiplier);
+
+        // Assert
+        const layerArea = (diameter + (thickness * layerMultiplier)) * 3.1415;
+        expect(result, equals(layerArea * pipeLength));
+      });
+    });
+
+    group('calculateFirstLayerArea', () {
+      test(
+          'should calculate first layer area correctly with layerMultiplier = 2',
+          () {
+        // Arrange
+        const double diameter = 0.1;
+        const double thickness = 0.05;
+        const double pipeLength = 10.0;
+
+        // Act
+        final result = calculator
+            .calculateFirstLayerArea(diameter, thickness, pipeLength)
+            .ceil();
+
+        // Assert
+        expect(result, equals(7));
+      });
+    });
+
+    group('calculateSecondLayerArea', () {
+      test(
+          'should calculate second layer area correctly with layerMultiplier = 4',
+          () {
+        // Arrange
+        const double diameter = 0.1;
+        const double thickness = 0.05;
+        const double pipeLength = 10;
+
+        // Act
+        final result = calculator
+            .calculateSecondLayerArea(diameter, thickness, pipeLength)
+            .ceil();
+
+        // Assert
+        expect(result, equals(10));
+      });
+    });
+
+    group('calculateTotalArea', () {
+      test('should calculate total area correctly', () {
+        // Arrange
+        const double firstLayerArea = 110;
+        const double secondLayerArea = 141;
+
+        // Act
+        final result =
+            calculator.calculateTotalArea(firstLayerArea, secondLayerArea);
+
+        // Assert
+        expect(result, equals(firstLayerArea + secondLayerArea));
+        expect(result, equals(251));
+      });
+    });
+
+    group('calculateRolls', () {
+      test('should calculate rolls correctly', () {
+        // Arrange
+        const double area = 110;
+        const double rollArea = 2.7;
+
+        // Act
+        final result = calculator.calculateRolls(area, rollArea).round();
+
+        // Assert
+        expect(result, equals(41));
+      });
+    });
+
+    group('calculateTotalRolls', () {
+      test('should calculate total rolls correctly', () {
+        // Arrange
+        const double rollsFirstLayer = 12;
+        const double rollsSecondLayer = 16;
+
+        // Act
+        final result =
+            calculator.calculateTotalRolls(rollsFirstLayer, rollsSecondLayer);
+
+        // Assert
+        expect(result, equals(rollsFirstLayer + rollsSecondLayer));
+        expect(result, equals(28));
+      });
+    });
   });
 }
