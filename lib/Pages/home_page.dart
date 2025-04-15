@@ -123,78 +123,104 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
         ),
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // TODO: real logo
-                Container(
-                  height: 120,
-                  width: 120,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.primary,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: theme.colorScheme.primary.withOpacity(0.3),
-                        blurRadius: 15,
-                        spreadRadius: 5,
+        child: Column(
+          children: [
+            Expanded(
+              child: Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // TODO: real logo
+                      Container(
+                        height: 120,
+                        width: 120,
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.primary,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: theme.colorScheme.primary
+                                  .withValues(alpha: .3),
+                              blurRadius: 15,
+                              spreadRadius: 5,
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.construction,
+                          size: 64,
+                          color: Colors.white,
+                        ),
+                      ),
+
+                      SizedBox(height: 40),
+
+                      Text(
+                        "Välkommen till Isoleringsberäknaren",
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: theme.colorScheme.primary,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+
+                      SizedBox(height: 16),
+
+                      Text(
+                        "Räkna på isolering och hantera projekt enkelt och effektivt",
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.grey[700],
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+
+                      SizedBox(height: 60),
+
+                      ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: theme.colorScheme.primary,
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 32, vertical: 16),
+                          textStyle: TextStyle(fontSize: 18),
+                        ),
+                        onPressed: _navigateToProjects,
+                        icon: Icon(
+                          _hasProjects ? Icons.business : Icons.add_business,
+                          size: 24,
+                        ),
+                        label: Text(_hasProjects
+                            ? "Visa projekt"
+                            : "Skapa ditt första projekt"),
                       ),
                     ],
                   ),
-                  child: Icon(
-                    Icons.construction,
-                    size: 64,
-                    color: Colors.white,
-                  ),
                 ),
-
-                SizedBox(height: 40),
-
-                Text(
-                  "Välkommen till Isoleringsberäknaren",
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.primary,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-
-                SizedBox(height: 16),
-
-                Text(
-                  "Räkna på isolering och hantera projekt enkelt och effektivt",
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.grey[700],
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-
-                SizedBox(height: 60),
-
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: theme.colorScheme.primary,
-                    foregroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                    textStyle: TextStyle(fontSize: 18),
-                  ),
-                  onPressed: _navigateToProjects,
-                  icon: Icon(
-                    _hasProjects ? Icons.business : Icons.add_business,
-                    size: 24,
-                  ),
-                  label: Text(_hasProjects
-                      ? "Visa projekt"
-                      : "Skapa ditt första projekt"),
-                ),
-              ],
+              ),
             ),
-          ),
+            // Footer
+            Container(
+              width: double.infinity,
+              padding:
+                  const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primary,
+              ),
+              child: Center(
+                child: Text(
+                  "© 2025 Isoleramera",
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: theme.colorScheme.onPrimary,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

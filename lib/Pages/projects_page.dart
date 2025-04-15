@@ -409,136 +409,164 @@ class _ProjectsPageState extends State<ProjectsPage> {
                         itemCount: _filteredProjects.length,
                         itemBuilder: (context, index) {
                           final project = _filteredProjects[index];
-                          return Card(
-                            elevation: 3,
-                            margin: const EdgeInsets.symmetric(
-                                vertical: 8, horizontal: 4),
-                            child: ListTile(
-                              contentPadding: const EdgeInsets.all(16),
-                              title: Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      "${project.projectNumber} - ${project.name}",
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 22,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.edit,
-                                        color: Colors.blue),
-                                    onPressed: () => editProject(project),
-                                    tooltip: 'Redigera projekt',
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.delete,
-                                        color: Colors.red),
-                                    onPressed: () {
-                                      if (project.id != null) {
-                                        removeProject(project.id!);
-                                      }
-                                    },
-                                    tooltip: 'Ta bort projekt',
-                                  ),
-                                ],
-                              ),
-                              subtitle: Padding(
-                                padding: const EdgeInsets.only(top: 8),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                          return Container(
+                            margin: EdgeInsets.only(
+                              bottom: index == _filteredProjects.length - 1
+                                  ? 200.0
+                                  : 0.0,
+                            ),
+                            child: Card(
+                              elevation: 3,
+                              margin: const EdgeInsets.symmetric(
+                                  vertical: 8, horizontal: 4),
+                              child: ListTile(
+                                contentPadding: const EdgeInsets.all(16),
+                                title: Row(
                                   children: [
-                                    if (project.address != null &&
-                                        project.address!.isNotEmpty)
-                                      InkWell(
-                                        onTap: () =>
-                                            openGoogleMaps(project.address!),
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              Icons.location_on,
-                                              size: 16,
-                                              color:
-                                                  theme.colorScheme.secondary,
-                                            ),
-                                            const SizedBox(width: 4),
-                                            Expanded(
-                                              child: Text(
-                                                project.address!,
-                                                style: const TextStyle(
-                                                    fontSize: 16),
-                                              ),
-                                            ),
-                                          ],
+                                    Expanded(
+                                      child: Text(
+                                        "${project.projectNumber} - ${project.name}",
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 22,
+                                          color: Colors.black,
                                         ),
                                       ),
-                                    const SizedBox(height: 4),
-                                    if (project.contactPerson != null &&
-                                        project.contactPerson!.isNotEmpty)
-                                      Row(
-                                        children: [
-                                          Icon(
-                                            Icons.person,
-                                            size: 16,
-                                            color: Colors.grey[600],
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.edit,
+                                          color: Colors.blue),
+                                      onPressed: () => editProject(project),
+                                      tooltip: 'Redigera projekt',
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete,
+                                          color: Colors.red),
+                                      onPressed: () {
+                                        if (project.id != null) {
+                                          removeProject(project.id!);
+                                        }
+                                      },
+                                      tooltip: 'Ta bort projekt',
+                                    ),
+                                  ],
+                                ),
+                                subtitle: Padding(
+                                  padding: const EdgeInsets.only(top: 8),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      if (project.address != null &&
+                                          project.address!.isNotEmpty)
+                                        InkWell(
+                                          onTap: () =>
+                                              openGoogleMaps(project.address!),
+                                          child: Row(
+                                            children: [
+                                              Icon(
+                                                Icons.location_on,
+                                                size: 16,
+                                                color:
+                                                    theme.colorScheme.secondary,
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Expanded(
+                                                child: Text(
+                                                  project.address!,
+                                                  style: const TextStyle(
+                                                      fontSize: 16),
+                                                ),
+                                              ),
+                                            ],
                                           ),
-                                          const SizedBox(width: 4),
-                                          Text(
-                                            project.contactPerson!,
-                                            style:
-                                                const TextStyle(fontSize: 16),
-                                          ),
-                                        ],
-                                      ),
-                                    const SizedBox(height: 4),
-                                    if (project.contactNumber != null &&
-                                        project.contactNumber!.isNotEmpty)
-                                      InkWell(
-                                        onTap: () =>
-                                            launchCall(project.contactNumber!),
-                                        child: Row(
+                                        ),
+                                      const SizedBox(height: 4),
+                                      if (project.contactPerson != null &&
+                                          project.contactPerson!.isNotEmpty)
+                                        Row(
                                           children: [
                                             Icon(
-                                              Icons.phone,
+                                              Icons.person,
                                               size: 16,
-                                              color:
-                                                  theme.colorScheme.secondary,
+                                              color: Colors.grey[600],
                                             ),
                                             const SizedBox(width: 4),
                                             Text(
-                                              project.contactNumber!,
+                                              project.contactPerson!,
                                               style:
                                                   const TextStyle(fontSize: 16),
                                             ),
                                           ],
                                         ),
+                                      const SizedBox(height: 4),
+                                      if (project.contactNumber != null &&
+                                          project.contactNumber!.isNotEmpty)
+                                        InkWell(
+                                          onTap: () => launchCall(
+                                              project.contactNumber!),
+                                          child: Row(
+                                            children: [
+                                              Icon(
+                                                Icons.phone,
+                                                size: 16,
+                                                color:
+                                                    theme.colorScheme.secondary,
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                project.contactNumber!,
+                                                style: const TextStyle(
+                                                    fontSize: 16),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        children: [
+                                          Icon(
+                                            Icons.calendar_today,
+                                            size: 16,
+                                            color: Colors.grey[600],
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            "Datum: ${project.date.toLocal().toString().split(' ')[0]}",
+                                            style:
+                                                const TextStyle(fontSize: 16),
+                                          ),
+                                        ],
                                       ),
-                                    const SizedBox(height: 4),
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          Icons.calendar_today,
-                                          size: 16,
-                                          color: Colors.grey[600],
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          "Datum: ${project.date.toLocal().toString().split(' ')[0]}",
-                                          style: const TextStyle(fontSize: 16),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
+                                onTap: () => navigateToProjectDetails(project),
                               ),
-                              onTap: () => navigateToProjectDetails(project),
                             ),
                           );
                         },
                       ),
                     ),
+            ),
+
+            // Footer
+            Container(
+              width: double.infinity,
+              padding:
+                  const EdgeInsets.symmetric(vertical: 12.0, horizontal: 16.0),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primary,
+              ),
+              child: Center(
+                child: Text(
+                  "© 2025 Isoleramera",
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: theme.colorScheme.onPrimary,
+                  ),
+                ),
+              ),
             ),
           ],
         ),
