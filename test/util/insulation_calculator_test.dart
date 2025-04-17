@@ -126,5 +126,40 @@ void main() {
         expect(result, equals(28));
       });
     });
+
+    group('calculateRectangularFirstLayerArea', () {
+      test('should calculate first layer area', () {
+        // arrange
+        const double sideA = 0.8;
+        const double sideB = 0.7;
+        const double thickness = 0.05;
+        const double pipeLength = 10;
+
+        // act
+        final result = calculator.calculateRectangularFirstLayerArea(
+            sideA, sideB, thickness, pipeLength);
+
+        // assert
+        expect(result, closeTo(32, 0.01));
+      });
+    });
+
+    group('calculateRectangularSecondLayerArea', () {
+      test('should calculate second layer area', () {
+        // arrange
+        const double sideA = 0.7;
+        const double sideB = 0.8;
+        const double thicknessOne = 0.05;
+        const double thicknessTwo = 0.05;
+        const double pipeLength = 10;
+
+        // act
+        final result = calculator.calculateRectangularSecondLayerArea(
+            sideA, sideB, thicknessOne, thicknessTwo, pipeLength);
+
+        // assert
+        expect(result, closeTo(34, 0.01));
+      });
+    });
   });
 }
