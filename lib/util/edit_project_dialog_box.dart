@@ -167,7 +167,7 @@ class _EditProjectDialogState extends State<EditProjectDialog> {
                     Icon(
                       Icons.calendar_today,
                       color: Theme.of(context).colorScheme.secondary,
-                      size: 24,
+                      size: 20,
                     ),
                   ],
                 ),
