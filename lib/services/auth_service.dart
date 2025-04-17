@@ -8,8 +8,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:insulation_app/models/users/user.dart' as app;
 
 class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth;
+  final FirebaseFirestore _firestore;
+
+  // Constructor that allows dependency injection for testing
+  AuthService({
+    FirebaseAuth? auth,
+    FirebaseFirestore? firestore,
+  })  : _auth = auth ?? FirebaseAuth.instance,
+        _firestore = firestore ?? FirebaseFirestore.instance;
 
   // Current authenticated Firebase user
   User? get currentUser => _auth.currentUser;

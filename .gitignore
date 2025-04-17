@@ -51,3 +51,4 @@ GoogleService-Info.plist
 firebase-debug.log
 *-firebase-adminsdk-*.json
 .firebase/
+firebase_options.dart:
